@@ -28,6 +28,10 @@
     --border:      oklch(28% 0.014 60 / 0.7);
     --border-soft: oklch(24% 0.014 60 / 0.5);
     --font-mono:   'Special Elite', 'Courier New', monospace;
+    --detect:      oklch(63% 0.18 258);
+    --detect-hi:   oklch(68% 0.18 258);
+    --detect-dim:  oklch(28% 0.10 258 / 0.35);
+    --detect-on:   oklch(98% 0.01 258);
   }
 
   * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
@@ -182,6 +186,18 @@
   .reveal { opacity: 0; transform: translateY(12px); transition: opacity 700ms cubic-bezier(.16,.84,.3,1), transform 700ms cubic-bezier(.16,.84,.3,1); }
   .reveal.in { opacity: 1; transform: none; }
 
+  /* How it works step animation */
+  .step-item {
+    opacity: 0; transform: translateY(28px);
+    transition: opacity 650ms cubic-bezier(.16,.84,.3,1), transform 650ms cubic-bezier(.16,.84,.3,1);
+  }
+  .step-item.in { opacity: 1; transform: none; }
+  /* Number count-up effect: slide in from below */
+  .step-num {
+    display: inline-block;
+    transition: color 400ms ease;
+  }
+
   /* FAQ accordion */
   details summary { list-style: none; cursor: pointer; }
   details summary::-webkit-details-marker { display: none; }
@@ -226,6 +242,30 @@
     box-shadow: 0 4px 12px -4px oklch(80% 0.135 75 / 0.55);
   }
   .mode-btn.active:hover { color: var(--accent-on); }
+  /* Detect mode gets a distinct blue active state */
+  .mode-btn.active[data-mode="detect"] {
+    color: var(--detect-on);
+    background: var(--detect);
+    box-shadow: 0 4px 12px -4px oklch(63% 0.18 258 / 0.55);
+  }
+  .mode-btn.active[data-mode="detect"]:hover { color: var(--detect-on); }
+
+  /* Detect-mode panel styling */
+  #humanizeBtn.detect-active {
+    background: var(--detect);
+    box-shadow: 0 1px 0 oklch(95% 0.05 80 / 0.3) inset, 0 8px 24px -8px oklch(63% 0.18 258 / 0.4);
+  }
+  #humanizeBtn.detect-active:hover { background: var(--detect-hi); }
+  #outputPanel.detect-mode { border-color: oklch(63% 0.18 258 / 0.55); }
+  #outputPanel.detect-mode #outputDot { background: var(--detect); box-shadow: 0 0 8px var(--detect); }
+  #inputPanel.detect-mode { border-color: oklch(63% 0.18 258 / 0.35); }
+
+  /* Pulsing scan dot on input card in detect mode */
+  @keyframes scanPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.6); }
+  }
+  #inputDot.scanning { animation: scanPulse 1.4s ease-in-out infinite; background: var(--detect) !important; }
 
   /* Empty state tiles inside the textarea container */
   .input-wrap { position: relative; }
@@ -558,11 +598,11 @@
   <div id="demo" class="reveal demo-grid grid md:grid-cols-[1fr_56px_1fr] gap-3 md:gap-3 max-w-6xl mx-auto items-stretch">
 
     <!-- INPUT CARD -->
-    <div class="card p-5 md:p-6">
+    <div id="inputPanel" class="card p-5 md:p-6">
       <div class="flex items-center justify-between mb-4 gap-3">
         <div class="flex items-center gap-2">
-          <span class="inline-block w-1.5 h-1.5 rounded-full" style="background:var(--fg-dim)"></span>
-          <span class="text-xs font-semibold tracking-widest uppercase" style="color:var(--fg-muted)">AI Text</span>
+          <span id="inputDot" class="inline-block w-1.5 h-1.5 rounded-full" style="background:var(--fg-dim)"></span>
+          <span id="inputPanelLabel" class="text-xs font-semibold tracking-widest uppercase" style="color:var(--fg-muted)">AI Text</span>
         </div>
         <span class="score-badge ai">
           <span class="score-dot"></span>
@@ -634,7 +674,7 @@
       <div class="flex items-center justify-between mb-4 gap-3">
         <div class="flex items-center gap-2">
           <span id="outputDot" class="inline-block w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>
-          <span class="text-xs font-semibold tracking-widest uppercase" style="color:var(--fg-muted)">Human Text</span>
+          <span id="outputPanelLabel" class="text-xs font-semibold tracking-widest uppercase" style="color:var(--fg-muted)">Human Text</span>
         </div>
         <span id="humanBadge" class="score-badge human" style="opacity:0;transition:opacity 300ms ease">
           <span class="score-dot"></span>
@@ -761,18 +801,18 @@
       </h2>
     </div>
     <div class="grid md:grid-cols-3 gap-10 md:gap-12">
-      <div>
-        <div class="display text-5xl font-bold mb-5" style="color:var(--accent)">01</div>
+      <div class="step-item" data-step="1" data-delay="0">
+        <div class="display text-5xl font-bold mb-5 step-num" data-target="1" style="color:var(--accent)">01</div>
         <h3 class="font-semibold text-lg mb-2.5">Paste your text</h3>
         <p class="text-sm leading-relaxed" style="color:var(--fg-muted)">Any AI-generated content: ChatGPT, Claude, Gemini, anything. Up to 1,500 words per pass on the free plan.</p>
       </div>
-      <div>
-        <div class="display text-5xl font-bold mb-5" style="color:var(--accent)">02</div>
+      <div class="step-item" data-step="2" data-delay="160">
+        <div class="display text-5xl font-bold mb-5 step-num" data-target="2" style="color:var(--accent)">02</div>
         <h3 class="font-semibold text-lg mb-2.5">We rewrite it</h3>
         <p class="text-sm leading-relaxed" style="color:var(--fg-muted)">Our model restructures sentences, varies cadence, swaps clinical vocabulary for natural phrasing, and removes telltale rhythm. Seconds.</p>
       </div>
-      <div>
-        <div class="display text-5xl font-bold mb-5" style="color:var(--accent)">03</div>
+      <div class="step-item" data-step="3" data-delay="320">
+        <div class="display text-5xl font-bold mb-5 step-num" data-target="3" style="color:var(--accent)">03</div>
         <h3 class="font-semibold text-lg mb-2.5">Use it, confidently</h3>
         <p class="text-sm leading-relaxed" style="color:var(--fg-muted)">Copy, paste, publish, submit. Zero AI flags on the major detectors. Your voice, your work.</p>
       </div>
@@ -1248,6 +1288,10 @@
   const meterNum = document.getElementById('meterNum');
   const detectorVerdict = document.getElementById('detectorVerdict');
   const switchToHumanize = document.getElementById('switchToHumanize');
+  const inputPanel = document.getElementById('inputPanel');
+  const inputDot = document.getElementById('inputDot');
+  const inputPanelLabel = document.getElementById('inputPanelLabel');
+  const outputPanelLabel = document.getElementById('outputPanelLabel');
 
   document.querySelectorAll('.mode-btn').forEach(b => {
     b.addEventListener('click', () => switchMode(b.dataset.mode));
@@ -1261,7 +1305,17 @@
       b.classList.toggle('active', active);
       b.setAttribute('aria-selected', active ? 'true' : 'false');
     });
-    if (mode === 'detect') {
+    const isDetect = mode === 'detect';
+    // Panel border + dot colors
+    outputPanel.classList.toggle('detect-mode', isDetect);
+    inputPanel.classList.toggle('detect-mode', isDetect);
+    inputDot.classList.toggle('scanning', isDetect);
+    // Button color
+    btn.classList.toggle('detect-active', isDetect);
+    // Header labels
+    inputPanelLabel.textContent = isDetect ? 'Scan Text' : 'AI Text';
+    outputPanelLabel.textContent = isDetect ? 'Detector Results' : 'Human Text';
+    if (isDetect) {
       detectorResult.classList.add('is-active');
       outputArea.style.display = 'none';
       humanBadge.style.opacity = '0';
@@ -1566,6 +1620,34 @@
     // Auto-load Academic sample after reveals
     setTimeout(() => loadSample('academic'), 1100);
   });
+
+  // ===== HOW IT WORKS: SCROLL-TRIGGERED STEP ANIMATION =====
+  const stepItems = document.querySelectorAll('.step-item');
+  const stepObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      const delay = parseInt(el.dataset.delay || '0');
+      setTimeout(() => {
+        el.classList.add('in');
+        // Count-up animation on the step number
+        const numEl = el.querySelector('.step-num');
+        if (numEl) {
+          const target = parseInt(numEl.dataset.target);
+          let cur = 0;
+          const total = 6; // steps from 0 → target
+          const interval = setInterval(() => {
+            cur++;
+            numEl.textContent = String(cur).padStart(2, '0');
+            if (cur >= target) clearInterval(interval);
+          }, 60);
+        }
+      }, delay);
+      stepObserver.unobserve(el);
+    });
+  }, { threshold: 0.25, rootMargin: '0px 0px -40px 0px' });
+
+  stepItems.forEach(el => stepObserver.observe(el));
 </script>
 </body>
 </html>
