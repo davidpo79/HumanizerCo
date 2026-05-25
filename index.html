@@ -137,6 +137,7 @@
     font-family: 'IBM Plex Mono', 'Courier New', monospace !important;
     font-size: 14.5px !important; line-height: 1.7; color: var(--fg);
     min-height: 240px; padding: 4px 2px; letter-spacing: 0;
+    user-select: none; -webkit-user-select: none;
   }
   .output-content p { margin-bottom: 12px; }
 
@@ -1172,6 +1173,19 @@
   </div>
 </footer>
 
+<!-- Copy Gate Modal -->
+<div id="copyGate" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(10,8,5,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:420px;width:100%;text-align:center">
+    <div style="display:inline-flex;align-items:center;gap:8px;background:var(--accent-dim);color:var(--accent);padding:6px 14px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.08em;margin-bottom:16px">✦ Your rewrite is ready</div>
+    <p style="color:var(--fg-soft);font-size:14px;margin-bottom:20px">Enter your email to copy — free, no credit card.</p>
+    <form id="copyGateForm" style="display:flex;flex-direction:column;gap:10px">
+      <input type="email" id="copyGateEmail" placeholder="you@email.com" required style="background:var(--bg-input);border:1px solid var(--border);color:var(--fg);border-radius:10px;padding:12px 14px;font-size:14px;outline:none;width:100%;box-sizing:border-box"/>
+      <button type="submit" class="btn-primary" style="width:100%">Unlock &amp; Copy →</button>
+    </form>
+    <button onclick="document.getElementById('copyGate').style.display='none'" style="background:none;border:none;color:var(--fg-muted);font-size:12px;margin-top:12px;cursor:pointer">Cancel</button>
+  </div>
+</div>
+
 <!-- Toast container -->
 <div id="toast" class="toast">
   <span style="color:var(--success)">✓</span>
@@ -1600,21 +1614,49 @@
   });
   emptyPaste.addEventListener('click', () => pasteBtn.click());
 
-  copyBtn.addEventListener('click', async () => {
-    const txt = signedUp ? lastHumanizedText : outputArea.textContent;
+  const copyGateEl = document.getElementById('copyGate');
+  document.getElementById('copyGateForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('copyGateEmail').value;
+    if (!email) return;
+    signedUp = true;
+    try { localStorage.setItem('humanizerco_email', email); } catch (_) {}
+    copyGateEl.style.display = 'none';
+    const txt = lastHumanizedText || outputArea.textContent;
     if (!txt) return;
     try {
       await navigator.clipboard.writeText(txt);
       copyBtn.classList.add('copied');
       copyBtnLabel.textContent = 'Copied';
-      setTimeout(() => {
-        copyBtn.classList.remove('copied');
-        copyBtnLabel.textContent = 'Copy';
-      }, 1800);
+      setTimeout(() => { copyBtn.classList.remove('copied'); copyBtnLabel.textContent = 'Copy'; }, 1800);
+      showToast();
+    } catch (_) {}
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    const txt = lastHumanizedText || outputArea.textContent;
+    if (!txt) return;
+    if (!signedUp) {
+      const saved = (() => { try { return localStorage.getItem('humanizerco_email'); } catch(_){} return null; })();
+      if (saved) { signedUp = true; } else {
+        copyGateEl.style.display = 'flex';
+        setTimeout(() => document.getElementById('copyGateEmail').focus(), 100);
+        return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(txt);
+      copyBtn.classList.add('copied');
+      copyBtnLabel.textContent = 'Copied';
+      setTimeout(() => { copyBtn.classList.remove('copied'); copyBtnLabel.textContent = 'Copy'; }, 1800);
     } catch (err) {
       showToastMsg('Could not copy', false);
     }
   });
+
+  // Block manual selection copy — route through Copy button
+  outputPanel.addEventListener('contextmenu', e => e.preventDefault());
+  outputPanel.addEventListener('copy', e => { e.preventDefault(); copyBtn.click(); });
 
   function runHumanizeOutput(outputText, targetHumanScore) {
     lastHumanizedText = outputText;

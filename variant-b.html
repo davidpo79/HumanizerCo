@@ -137,6 +137,7 @@
     font-family: 'IBM Plex Mono', 'Courier New', monospace !important;
     font-size: 14.5px !important; line-height: 1.7; color: var(--fg);
     min-height: 240px; padding: 4px 2px; letter-spacing: 0;
+    user-select: none; -webkit-user-select: none;
   }
   .output-content p { margin-bottom: 12px; }
 
@@ -1148,7 +1149,7 @@
 <div id="copyGate" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(10,8,5,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px">
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:420px;width:100%;text-align:center">
     <div style="display:inline-flex;align-items:center;gap:8px;background:var(--accent-dim);color:var(--accent);padding:6px 14px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.08em;margin-bottom:16px">✦ Your rewrite is ready</div>
-    <p style="color:var(--fg-soft);font-size:14px;margin-bottom:20px">See the full result. Free, no credit card.</p>
+    <p style="color:var(--fg-soft);font-size:14px;margin-bottom:20px">Enter your email to copy — free, no credit card.</p>
     <form id="copyGateForm" style="display:flex;flex-direction:column;gap:10px">
       <input type="email" id="copyGateEmail" placeholder="you@email.com" required style="background:var(--bg-input);border:1px solid var(--border);color:var(--fg);border-radius:10px;padding:12px 14px;font-size:14px;outline:none;width:100%;box-sizing:border-box"/>
       <button type="submit" class="btn-primary" style="width:100%">Unlock &amp; Copy →</button>
@@ -1707,6 +1708,10 @@
   }
 
   // (old inline gate form removed in Variant B — using copyGate modal instead)
+
+  // Block manual selection copy — route through Copy button
+  outputPanel.addEventListener('contextmenu', e => e.preventDefault());
+  outputPanel.addEventListener('copy', e => { e.preventDefault(); copyBtn.click(); });
 
   function showToast() {
     showToastMsg('Your 3 free humanizations are ready.', true);

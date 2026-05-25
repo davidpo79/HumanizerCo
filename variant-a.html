@@ -137,6 +137,7 @@
     font-family: 'IBM Plex Mono', 'Courier New', monospace !important;
     font-size: 14.5px !important; line-height: 1.7; color: var(--fg);
     min-height: 240px; padding: 4px 2px; letter-spacing: 0;
+    user-select: none; -webkit-user-select: none;
   }
   .output-content p { margin-bottom: 12px; }
 
@@ -1565,8 +1566,13 @@
   // (empty state tiles removed in Variant A — auto-demo runs instead)
 
   copyBtn.addEventListener('click', async () => {
-    const txt = signedUp ? lastHumanizedText : outputArea.textContent;
+    const txt = lastHumanizedText || outputArea.textContent;
     if (!txt) return;
+    if (!signedUp) {
+      gateEl.style.display = 'block';
+      setTimeout(() => document.getElementById('gateEmail')?.focus(), 100);
+      return;
+    }
     try {
       await navigator.clipboard.writeText(txt);
       copyBtn.classList.add('copied');
@@ -1708,6 +1714,10 @@
       }, 12);
     }, 300);
   });
+
+  // Block manual selection copy — route through Copy button
+  outputPanel.addEventListener('contextmenu', e => e.preventDefault());
+  outputPanel.addEventListener('copy', e => { e.preventDefault(); copyBtn.click(); });
 
   function showToast() {
     showToastMsg('Your 3 free humanizations are ready.', true);
