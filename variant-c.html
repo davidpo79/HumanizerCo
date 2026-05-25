@@ -10,7 +10,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=DM+Sans:wght@400;500;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg:          oklch(14% 0.012 60);
@@ -29,11 +29,14 @@
     --success-dim: oklch(30% 0.080 145 / 0.35);
     --border:      oklch(28% 0.014 60 / 0.7);
     --border-soft: oklch(24% 0.014 60 / 0.5);
-    --font-mono:   'Special Elite', 'Courier New', monospace;
+    --font-mono:   'IBM Plex Mono', 'Courier New', monospace;
     --detect:      oklch(63% 0.08 150);
     --detect-hi:   oklch(68% 0.08 150);
     --detect-dim:  oklch(25% 0.05 150 / 0.35);
     --detect-on:   oklch(14% 0.012 60);
+    --ai-cold:     oklch(75% 0.15 250);
+    --ai-cold-hi:  oklch(80% 0.15 250);
+    --ai-cold-dim: oklch(22% 0.08 250 / 0.35);
   }
 
   * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
@@ -114,7 +117,7 @@
     transition: border-color 160ms ease, box-shadow 160ms ease;
   }
   textarea {
-    font-family: 'Special Elite', 'Courier New', monospace !important; font-size: 15px !important; line-height: 1.8; letter-spacing: 0.01em;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace !important; font-size: 14.5px !important; line-height: 1.7; letter-spacing: 0;
     background-image: repeating-linear-gradient(
       to bottom,
       transparent 0,
@@ -132,9 +135,9 @@
 
   /* Output text styling */
   .output-content {
-    font-family: 'Special Elite', 'Courier New', monospace !important;
-    font-size: 15px !important; line-height: 1.8; color: var(--fg);
-    min-height: 240px; padding: 4px 2px; letter-spacing: 0.01em;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace !important;
+    font-size: 14.5px !important; line-height: 1.7; color: var(--fg);
+    min-height: 240px; padding: 4px 2px; letter-spacing: 0;
   }
   .output-content p { margin-bottom: 12px; }
 
@@ -160,8 +163,8 @@
   .typing-cursor::after {
     content: "_";
     color: var(--accent);
-    font-family: 'Special Elite', 'Courier New', monospace !important;
-    font-size: 15px;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace !important;
+    font-size: 14.5px;
     animation: blink 0.6s steps(1, end) infinite;
     margin-left: 1px;
   }
@@ -246,37 +249,39 @@
     box-shadow: 0 4px 12px -4px oklch(80% 0.135 75 / 0.55);
   }
   .mode-btn.active:hover { color: var(--accent-on); }
-  /* Detect toggle uses the same amber — both modes share the brand colour */
+  /* AI Detector toggle: intentional "Ice Blue" — cold, robotic contrast to warm amber */
   .mode-btn.active[data-mode="detect"] {
-    color: var(--accent-on);
-    background: var(--accent);
-    box-shadow: 0 4px 12px -4px oklch(80% 0.135 75 / 0.45);
+    color: oklch(10% 0.01 250);
+    background: var(--ai-cold);
+    box-shadow: 0 4px 16px -4px oklch(75% 0.15 250 / 0.55);
   }
-  .mode-btn.active[data-mode="detect"]:hover { color: var(--accent-on); }
+  .mode-btn.active[data-mode="detect"]:hover { color: oklch(10% 0.01 250); background: var(--ai-cold-hi); }
+  .mode-btn[data-mode="detect"]:not(.active):hover { color: var(--ai-cold); }
 
-  /* "Check for AI" button: ghost treatment — transparent bg, amber outline */
+  /* "Check for AI" button: icy ghost — cold blue border, faint frost glow */
   #humanizeBtn.detect-active {
     background: transparent !important;
-    color: var(--accent) !important;
-    border: 1.5px solid var(--accent) !important;
-    box-shadow: none !important;
+    color: var(--ai-cold) !important;
+    border: 1.5px solid var(--ai-cold) !important;
+    box-shadow: 0 0 12px oklch(75% 0.15 250 / 0.20), 0 8px 24px -8px oklch(75% 0.15 250 / 0.25) !important;
   }
   #humanizeBtn.detect-active:hover {
-    background: var(--accent-dim) !important;
+    background: var(--ai-cold-dim) !important;
+    box-shadow: 0 0 18px oklch(75% 0.15 250 / 0.30), 0 8px 24px -8px oklch(75% 0.15 250 / 0.35) !important;
     transform: translateY(-1px);
   }
 
-  /* Panel borders in detect mode: subtle amber tint */
-  #outputPanel.detect-mode { border-color: oklch(80% 0.135 75 / 0.45); }
-  #outputPanel.detect-mode #outputDot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
-  #inputPanel.detect-mode { border-color: oklch(80% 0.135 75 / 0.30); }
+  /* Panel borders in detect mode: cold blue tint */
+  #outputPanel.detect-mode { border-color: oklch(75% 0.15 250 / 0.45); }
+  #outputPanel.detect-mode #outputDot { background: var(--ai-cold); box-shadow: 0 0 8px var(--ai-cold); }
+  #inputPanel.detect-mode { border-color: oklch(75% 0.15 250 / 0.30); }
 
-  /* Pulsing scan dot on input card in detect mode */
+  /* Pulsing scan dot on input card in detect mode: icy pulse */
   @keyframes scanPulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.4; transform: scale(1.6); }
   }
-  #inputDot.scanning { animation: scanPulse 1.4s ease-in-out infinite; background: var(--accent) !important; }
+  #inputDot.scanning { animation: scanPulse 1.4s ease-in-out infinite; background: var(--ai-cold) !important; }
 
   /* Empty state tiles inside the textarea container */
   .input-wrap { position: relative; }
@@ -550,7 +555,7 @@
     font-size: 13px;
   }
   .trust-badge-num {
-    font-family: 'Special Elite', 'Courier New', monospace;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
     font-size: 15px; font-weight: 400;
     color: var(--fg);
     letter-spacing: 0.02em;
@@ -650,7 +655,7 @@
       When everyone sounds like a bot,<br><span class="display-italic" style="color:var(--accent)">sound human.</span>
     </h1>
     <p class="reveal text-base md:text-lg max-w-xl mx-auto leading-relaxed" style="color:var(--fg-muted)">
-      Paste your AI draft below. Get back writing that's 100% undetectable, and unmistakably yours.
+      Paste your AI draft below. Turn cold AI into warm, 100% undetectable text that reads like it came straight from your own typewriter...unmistakably yours.
     </p>
   </div>
 
@@ -1066,15 +1071,15 @@
         </div>
         <div class="flex items-center gap-3 flex-shrink-0">
           <div class="text-center px-5 py-3 rounded-xl" style="background:var(--bg-card);border:1px solid var(--border)">
-            <span style="font-family:'Special Elite','Courier New',monospace;font-size:22px;color:var(--accent)">$5</span>
+            <span style="font-family:'IBM Plex Mono','Courier New',monospace;font-size:22px;color:var(--accent)">$5</span>
             <p class="text-xs mt-0.5" style="color:var(--fg-muted)">for</p>
-            <span style="font-family:'Special Elite','Courier New',monospace;font-size:16px;color:var(--fg)">50k words</span>
+            <span style="font-family:'IBM Plex Mono','Courier New',monospace;font-size:16px;color:var(--fg)">50k words</span>
           </div>
           <div style="color:var(--fg-dim);font-size:18px">·</div>
           <div class="text-center px-5 py-3 rounded-xl" style="background:var(--bg-card);border:1px solid var(--border)">
-            <span style="font-family:'Special Elite','Courier New',monospace;font-size:22px;color:var(--accent)">$18</span>
+            <span style="font-family:'IBM Plex Mono','Courier New',monospace;font-size:22px;color:var(--accent)">$18</span>
             <p class="text-xs mt-0.5" style="color:var(--fg-muted)">for</p>
-            <span style="font-family:'Special Elite','Courier New',monospace;font-size:16px;color:var(--fg)">200k words</span>
+            <span style="font-family:'IBM Plex Mono','Courier New',monospace;font-size:16px;color:var(--fg)">200k words</span>
           </div>
         </div>
       </div>
@@ -1314,7 +1319,6 @@
   const AI_PROB_START = 87;
   const AI_PROB_END = 8;
   function updateAiProb(progress) {
-    // progress 0..1 from start of typing to end; eased
     const p = Math.max(0, Math.min(1, progress));
     const eased = 1 - Math.pow(1 - p, 2);
     const val = Math.round(AI_PROB_START + (AI_PROB_END - AI_PROB_START) * eased);
@@ -1405,18 +1409,23 @@
       const prevChar = i > 0 ? text[i - 1] : '';
       const isSentenceEnd = '.!?'.includes(prevChar);
       const isPunct = ',;:'.includes(prevChar);
-      let delay = 15 + Math.random() * 25;
-      if (isPunct) delay += 60 + Math.random() * 60;
-      if (isSentenceEnd) delay += 80 + Math.random() * 100;
+      // Fast base: 3–7ms; brief micro-pauses at punctuation only
+      let delay = 3 + Math.random() * 4;
+      if (isPunct) delay += 16 + Math.random() * 12;
+      if (isSentenceEnd) delay += 28 + Math.random() * 28;
       outputTimer = setTimeout(() => {
-        outputArea.textContent += text[i];
-        const progress = (i + 1) / text.length;
-        if (humanScoreEl && typeof humanTarget === 'number') {
-          humanScoreEl.textContent = Math.round(humanTarget * progress) + '%';
+        // Write 2 chars per tick on plain runs — feels like rapid AI stream
+        const burst = (!isSentenceEnd && !isPunct) ? 2 : 1;
+        for (let k = 0; k < burst && i + k < stopAt; k++) {
+          outputArea.textContent += text[i + k];
         }
-        updateAiProb(progress); // VARIANT C: animate AI probability meter
-        if (i + 1 < stopAt) {
-          scheduleChar(i + 1);
+        const next = Math.min(i + burst, stopAt);
+        const progress = next / text.length;
+        if (humanScoreEl && typeof humanTarget === 'number') {
+          humanScoreEl.textContent = Math.round(humanTarget * Math.min(1, progress)) + '%';
+        }
+        if (next < stopAt) {
+          scheduleChar(next);
         } else {
           outputTimer = null;
           outputArea.classList.remove('typing-cursor');
@@ -1549,13 +1558,10 @@
       humanBadge.style.opacity = '0';
       gateEl.style.display = 'none';
       copyBtn.style.display = 'none';
-      if (aiProbWidget) aiProbWidget.style.display = 'none'; // VARIANT C: hide meter in detect mode
       humanizeBtnLabel.textContent = 'Check for AI';
     } else {
       detectorResult.classList.remove('is-active');
       outputArea.style.display = '';
-      // VARIANT C: restore meter if we have humanized output
-      if (aiProbWidget && lastHumanizedText) aiProbWidget.style.display = 'block';
       humanizeBtnLabel.textContent = 'Humanize Text';
     }
   }
@@ -1660,9 +1666,6 @@
     }
     humanBadge.style.opacity = '1';
     humanScoreEl.textContent = '0%';
-    // VARIANT C: Show and reset the AI probability meter before typing starts
-    if (aiProbWidget) aiProbWidget.style.display = 'block';
-    resetAiProb();
     typeIntoOutput(outputText, 14, 0.65, targetHumanScore);
   }
 

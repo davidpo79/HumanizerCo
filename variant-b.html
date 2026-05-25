@@ -34,6 +34,9 @@
     --detect-hi:   oklch(68% 0.08 150);
     --detect-dim:  oklch(25% 0.05 150 / 0.35);
     --detect-on:   oklch(14% 0.012 60);
+    --ai-cold:     oklch(75% 0.15 250);
+    --ai-cold-hi:  oklch(80% 0.15 250);
+    --ai-cold-dim: oklch(22% 0.08 250 / 0.35);
   }
 
   * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
@@ -246,37 +249,39 @@
     box-shadow: 0 4px 12px -4px oklch(80% 0.135 75 / 0.55);
   }
   .mode-btn.active:hover { color: var(--accent-on); }
-  /* Detect toggle uses the same amber — both modes share the brand colour */
+  /* AI Detector toggle: intentional "Ice Blue" — cold, robotic contrast to warm amber */
   .mode-btn.active[data-mode="detect"] {
-    color: var(--accent-on);
-    background: var(--accent);
-    box-shadow: 0 4px 12px -4px oklch(80% 0.135 75 / 0.45);
+    color: oklch(10% 0.01 250);
+    background: var(--ai-cold);
+    box-shadow: 0 4px 16px -4px oklch(75% 0.15 250 / 0.55);
   }
-  .mode-btn.active[data-mode="detect"]:hover { color: var(--accent-on); }
+  .mode-btn.active[data-mode="detect"]:hover { color: oklch(10% 0.01 250); background: var(--ai-cold-hi); }
+  .mode-btn[data-mode="detect"]:not(.active):hover { color: var(--ai-cold); }
 
-  /* "Check for AI" button: ghost treatment — transparent bg, amber outline */
+  /* "Check for AI" button: icy ghost — cold blue border, faint frost glow */
   #humanizeBtn.detect-active {
     background: transparent !important;
-    color: var(--accent) !important;
-    border: 1.5px solid var(--accent) !important;
-    box-shadow: none !important;
+    color: var(--ai-cold) !important;
+    border: 1.5px solid var(--ai-cold) !important;
+    box-shadow: 0 0 12px oklch(75% 0.15 250 / 0.20), 0 8px 24px -8px oklch(75% 0.15 250 / 0.25) !important;
   }
   #humanizeBtn.detect-active:hover {
-    background: var(--accent-dim) !important;
+    background: var(--ai-cold-dim) !important;
+    box-shadow: 0 0 18px oklch(75% 0.15 250 / 0.30), 0 8px 24px -8px oklch(75% 0.15 250 / 0.35) !important;
     transform: translateY(-1px);
   }
 
-  /* Panel borders in detect mode: subtle amber tint */
-  #outputPanel.detect-mode { border-color: oklch(80% 0.135 75 / 0.45); }
-  #outputPanel.detect-mode #outputDot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
-  #inputPanel.detect-mode { border-color: oklch(80% 0.135 75 / 0.30); }
+  /* Panel borders in detect mode: cold blue tint */
+  #outputPanel.detect-mode { border-color: oklch(75% 0.15 250 / 0.45); }
+  #outputPanel.detect-mode #outputDot { background: var(--ai-cold); box-shadow: 0 0 8px var(--ai-cold); }
+  #inputPanel.detect-mode { border-color: oklch(75% 0.15 250 / 0.30); }
 
-  /* Pulsing scan dot on input card in detect mode */
+  /* Pulsing scan dot on input card in detect mode: icy pulse */
   @keyframes scanPulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.4; transform: scale(1.6); }
   }
-  #inputDot.scanning { animation: scanPulse 1.4s ease-in-out infinite; background: var(--accent) !important; }
+  #inputDot.scanning { animation: scanPulse 1.4s ease-in-out infinite; background: var(--ai-cold) !important; }
 
   /* Empty state tiles inside the textarea container */
   .input-wrap { position: relative; }
@@ -628,7 +633,7 @@
       When everyone sounds like a bot,<br><span class="display-italic" style="color:var(--accent)">sound human.</span>
     </h1>
     <p class="reveal text-base md:text-lg max-w-xl mx-auto leading-relaxed" style="color:var(--fg-muted)">
-      Paste your AI draft below. Get back writing that's 100% undetectable, and unmistakably yours.
+      Paste your AI draft below. Turn cold AI into warm, 100% undetectable text that reads like it came straight from your own typewriter...unmistakably yours.
     </p>
   </div>
 
@@ -1330,17 +1335,23 @@
       const prevChar = i > 0 ? text[i - 1] : '';
       const isSentenceEnd = '.!?'.includes(prevChar);
       const isPunct = ',;:'.includes(prevChar);
-      let delay = 15 + Math.random() * 25;
-      if (isPunct) delay += 60 + Math.random() * 60;
-      if (isSentenceEnd) delay += 80 + Math.random() * 100;
+      // Fast base: 3–7ms; brief micro-pauses at punctuation only
+      let delay = 3 + Math.random() * 4;
+      if (isPunct) delay += 16 + Math.random() * 12;
+      if (isSentenceEnd) delay += 28 + Math.random() * 28;
       outputTimer = setTimeout(() => {
-        outputArea.textContent += text[i];
-        const progress = (i + 1) / text.length;
-        if (humanScoreEl && typeof humanTarget === 'number') {
-          humanScoreEl.textContent = Math.round(humanTarget * progress) + '%';
+        // Write 2 chars per tick on plain runs — feels like rapid AI stream
+        const burst = (!isSentenceEnd && !isPunct) ? 2 : 1;
+        for (let k = 0; k < burst && i + k < stopAt; k++) {
+          outputArea.textContent += text[i + k];
         }
-        if (i + 1 < stopAt) {
-          scheduleChar(i + 1);
+        const next = Math.min(i + burst, stopAt);
+        const progress = next / text.length;
+        if (humanScoreEl && typeof humanTarget === 'number') {
+          humanScoreEl.textContent = Math.round(humanTarget * Math.min(1, progress)) + '%';
+        }
+        if (next < stopAt) {
+          scheduleChar(next);
         } else {
           outputTimer = null;
           outputArea.classList.remove('typing-cursor');

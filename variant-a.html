@@ -34,6 +34,9 @@
     --detect-hi:   oklch(68% 0.08 150);
     --detect-dim:  oklch(25% 0.05 150 / 0.35);
     --detect-on:   oklch(14% 0.012 60);
+    --ai-cold:     oklch(75% 0.15 250);
+    --ai-cold-hi:  oklch(80% 0.15 250);
+    --ai-cold-dim: oklch(22% 0.08 250 / 0.35);
   }
 
   * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
@@ -244,37 +247,39 @@
     box-shadow: 0 4px 12px -4px oklch(80% 0.135 75 / 0.55);
   }
   .mode-btn.active:hover { color: var(--accent-on); }
-  /* Detect toggle uses the same amber — both modes share the brand colour */
+  /* AI Detector toggle: intentional "Ice Blue" — cold, robotic contrast to warm amber */
   .mode-btn.active[data-mode="detect"] {
-    color: var(--accent-on);
-    background: var(--accent);
-    box-shadow: 0 4px 12px -4px oklch(80% 0.135 75 / 0.45);
+    color: oklch(10% 0.01 250);
+    background: var(--ai-cold);
+    box-shadow: 0 4px 16px -4px oklch(75% 0.15 250 / 0.55);
   }
-  .mode-btn.active[data-mode="detect"]:hover { color: var(--accent-on); }
+  .mode-btn.active[data-mode="detect"]:hover { color: oklch(10% 0.01 250); background: var(--ai-cold-hi); }
+  .mode-btn[data-mode="detect"]:not(.active):hover { color: var(--ai-cold); }
 
-  /* "Check for AI" button: ghost treatment — transparent bg, amber outline */
+  /* "Check for AI" button: icy ghost — cold blue border, faint frost glow */
   #humanizeBtn.detect-active {
     background: transparent !important;
-    color: var(--accent) !important;
-    border: 1.5px solid var(--accent) !important;
-    box-shadow: none !important;
+    color: var(--ai-cold) !important;
+    border: 1.5px solid var(--ai-cold) !important;
+    box-shadow: 0 0 12px oklch(75% 0.15 250 / 0.20), 0 8px 24px -8px oklch(75% 0.15 250 / 0.25) !important;
   }
   #humanizeBtn.detect-active:hover {
-    background: var(--accent-dim) !important;
+    background: var(--ai-cold-dim) !important;
+    box-shadow: 0 0 18px oklch(75% 0.15 250 / 0.30), 0 8px 24px -8px oklch(75% 0.15 250 / 0.35) !important;
     transform: translateY(-1px);
   }
 
-  /* Panel borders in detect mode: subtle amber tint */
-  #outputPanel.detect-mode { border-color: oklch(80% 0.135 75 / 0.45); }
-  #outputPanel.detect-mode #outputDot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
-  #inputPanel.detect-mode { border-color: oklch(80% 0.135 75 / 0.30); }
+  /* Panel borders in detect mode: cold blue tint */
+  #outputPanel.detect-mode { border-color: oklch(75% 0.15 250 / 0.45); }
+  #outputPanel.detect-mode #outputDot { background: var(--ai-cold); box-shadow: 0 0 8px var(--ai-cold); }
+  #inputPanel.detect-mode { border-color: oklch(75% 0.15 250 / 0.30); }
 
-  /* Pulsing scan dot on input card in detect mode */
+  /* Pulsing scan dot on input card in detect mode: icy pulse */
   @keyframes scanPulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.4; transform: scale(1.6); }
   }
-  #inputDot.scanning { animation: scanPulse 1.4s ease-in-out infinite; background: var(--accent) !important; }
+  #inputDot.scanning { animation: scanPulse 1.4s ease-in-out infinite; background: var(--ai-cold) !important; }
 
   /* Empty state tiles inside the textarea container */
   .input-wrap { position: relative; }
@@ -626,7 +631,7 @@
       When everyone sounds like a bot,<br><span class="display-italic" style="color:var(--accent)">sound human.</span>
     </h1>
     <p class="reveal text-base md:text-lg max-w-xl mx-auto leading-relaxed" style="color:var(--fg-muted)">
-      Paste your AI draft below. Get back writing that's 100% undetectable, and unmistakably yours.
+      Paste your AI draft below. Turn cold AI into warm, 100% undetectable text that reads like it came straight from your own typewriter...unmistakably yours.
     </p>
   </div>
 
@@ -761,30 +766,31 @@
         </button>
       </div>
 
-      <!-- Copy button (revealed after signup + full output typed) -->
+      <!-- VARIANT A: Copy button always visible after full output types (gate fires on click) -->
       <button id="copyBtn" class="copy-btn" type="button" title="Copy humanized text">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         <span id="copyBtnLabel">Copy</span>
       </button>
-
-      <!-- Gate overlay (revealed when 65% typed) -->
-      <div id="gate" style="display:none">
-        <div class="gate-blur-strip"></div>
-        <div class="gate-content">
-          <div class="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold" style="background:var(--accent-dim);color:var(--accent)">
-            ✦ Your rewrite is ready
-          </div>
-          <p class="text-sm mb-4 max-w-sm mx-auto" style="color:var(--fg-soft)">See the full result. Free, no credit card.</p>
-          <form id="gateForm" class="flex gap-2 max-w-md mx-auto">
-            <input type="email" id="gateEmail" placeholder="you@email.com" required />
-            <button type="submit" class="btn-primary">Unlock →</button>
-          </form>
-        </div>
-      </div>
     </div>
 
   </div><!-- /demo grid -->
 </section>
+
+<!-- VARIANT A: Gate modal — triggered by Copy button if not signed up -->
+<div id="gate" style="display:none" class="gate-modal-backdrop" role="dialog" aria-modal="true">
+  <div class="gate-modal-box">
+    <div class="gate-content">
+      <div class="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold" style="background:var(--accent-dim);color:var(--accent)">
+        ✦ Your rewrite is ready
+      </div>
+      <p class="text-sm mb-4 max-w-sm mx-auto" style="color:var(--fg-soft)">See the full result. Free, no credit card.</p>
+      <form id="gateForm" class="flex gap-2 max-w-md mx-auto">
+        <input type="email" id="gateEmail" placeholder="you@email.com" required />
+        <button type="submit" class="btn-primary">Unlock →</button>
+      </form>
+    </div>
+  </div>
+</div>
 
 <!-- TRUST BAR -->
 <div class="border-t border-b hairline">
@@ -1321,32 +1327,34 @@
     outputArea.textContent = '';
     outputArea.classList.add('typing-cursor');
     copyBtn.style.display = 'none';
-    const blurIndex = Math.floor(text.length * blurAt);
-    const stopAt = signedUp ? text.length : blurIndex;
+    // VARIANT A: Always type the full text — gate fires on Copy click, not mid-output
 
     function scheduleChar(i) {
       const prevChar = i > 0 ? text[i - 1] : '';
       const isSentenceEnd = '.!?'.includes(prevChar);
       const isPunct = ',;:'.includes(prevChar);
-      let delay = 15 + Math.random() * 25;
-      if (isPunct) delay += 60 + Math.random() * 60;
-      if (isSentenceEnd) delay += 80 + Math.random() * 100;
+      // Fast base: 3–7ms; brief micro-pauses at punctuation only
+      let delay = 3 + Math.random() * 4;
+      if (isPunct) delay += 16 + Math.random() * 12;
+      if (isSentenceEnd) delay += 28 + Math.random() * 28;
       outputTimer = setTimeout(() => {
-        outputArea.textContent += text[i];
-        const progress = (i + 1) / text.length;
-        if (humanScoreEl && typeof humanTarget === 'number') {
-          humanScoreEl.textContent = Math.round(humanTarget * progress) + '%';
+        // Write 2 chars per tick on plain runs — feels like rapid AI stream
+        const burst = (!isSentenceEnd && !isPunct) ? 2 : 1;
+        for (let k = 0; k < burst && i + k < text.length; k++) {
+          outputArea.textContent += text[i + k];
         }
-        if (i + 1 < stopAt) {
-          scheduleChar(i + 1);
+        const next = Math.min(i + burst, text.length);
+        const progress = next / text.length;
+        if (humanScoreEl && typeof humanTarget === 'number') {
+          humanScoreEl.textContent = Math.round(humanTarget * Math.min(1, progress)) + '%';
+        }
+        if (next < text.length) {
+          scheduleChar(next);
         } else {
           outputTimer = null;
           outputArea.classList.remove('typing-cursor');
-          if (!signedUp) {
-            setTimeout(() => { gateEl.style.display = 'block'; }, 200);
-          } else {
-            copyBtn.style.display = 'inline-flex';
-          }
+          // VARIANT A: Always show Copy button — gate fires when Copy is clicked
+          copyBtn.style.display = 'inline-flex';
           humanBadge.style.opacity = '1';
         }
       }, delay);
@@ -1557,7 +1565,14 @@
   emptyPaste.addEventListener('click', () => pasteBtn.click());
 
   copyBtn.addEventListener('click', async () => {
-    const txt = signedUp ? lastHumanizedText : outputArea.textContent;
+    // VARIANT A: If not signed up, show gate modal instead of copying
+    if (!signedUp) {
+      gateEl.style.display = 'flex';
+      const emailInput = document.getElementById('gateEmail');
+      if (emailInput) setTimeout(() => emailInput.focus(), 100);
+      return;
+    }
+    const txt = lastHumanizedText || outputArea.textContent;
     if (!txt) return;
     try {
       await navigator.clipboard.writeText(txt);
@@ -1673,31 +1688,39 @@
   }
 
   // Gate form submit
-  document.getElementById('gateForm').addEventListener('submit', (e) => {
+  document.getElementById('gateForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('gateEmail').value;
     if (!email) return;
     signedUp = true;
     try { localStorage.setItem('humanizerco_email', email); } catch (_) {}
+    // VARIANT A: Full text already shown — close modal, copy the text, show toast
     gateEl.style.transition = 'opacity 300ms ease';
     gateEl.style.opacity = '0';
-    setTimeout(() => {
+    setTimeout(async () => {
       gateEl.style.display = 'none';
-      const fullText = lastHumanizedText || (currentSample ? samples[currentSample].output : '');
-      if (!fullText) return;
-      const currentLen = outputArea.textContent.length;
-      let i = currentLen;
-      outputArea.classList.add('typing-cursor');
-      outputTimer = setInterval(() => {
-        outputArea.textContent += fullText[i++];
-        if (i >= fullText.length) {
-          clearInterval(outputTimer);
-          outputArea.classList.remove('typing-cursor');
-          copyBtn.style.display = 'inline-flex';
-          showToast();
-        }
-      }, 12);
+      gateEl.style.opacity = '1';
+      const txt = lastHumanizedText || outputArea.textContent;
+      if (txt) {
+        try {
+          await navigator.clipboard.writeText(txt);
+          copyBtn.classList.add('copied');
+          copyBtnLabel.textContent = 'Copied';
+          setTimeout(() => {
+            copyBtn.classList.remove('copied');
+            copyBtnLabel.textContent = 'Copy';
+          }, 1800);
+        } catch (_) {}
+      }
+      showToast();
     }, 300);
+  });
+
+  // VARIANT A: Close gate modal when clicking backdrop
+  gateEl.addEventListener('click', (e) => {
+    if (e.target === gateEl) {
+      gateEl.style.display = 'none';
+    }
   });
 
   function showToast() {
