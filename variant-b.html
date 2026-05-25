@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- VARIANT B — Gate copy reframed around anxiety (loss aversion): "Stop getting flagged. It's free." -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -141,23 +140,7 @@
   }
   .output-content p { margin-bottom: 12px; }
 
-  /* Blur gate */
-  .gate-blur-strip {
-    position: absolute; left: 0; right: 0; bottom: 0;
-    height: 78%;
-    background: linear-gradient(to bottom,
-      oklch(19% 0.014 60 / 0) 0%,
-      oklch(19% 0.014 60 / 0.85) 35%,
-      oklch(19% 0.014 60 / 1) 70%);
-    backdrop-filter: blur(2.5px);
-    pointer-events: none;
-    border-radius: 0 0 14px 14px;
-  }
-  .gate-content {
-    position: absolute; left: 0; right: 0; bottom: 0;
-    padding: 28px 20px 20px;
-    text-align: center;
-  }
+  /* Blur gate CSS removed in Variant B — gate moved to full-page modal */
 
   /* Caret/cursor for typing effect */
   .typing-cursor::after {
@@ -587,6 +570,7 @@
 </style>
 </head>
 <body class="bg-grain">
+<!-- VARIANT B: Full Value Exposure — no blur gate, Copy button triggers email gate -->
 
 <!-- NAV -->
 <nav id="nav" class="nav-border sticky top-0 z-30 transition-colors">
@@ -795,26 +779,13 @@
         </button>
       </div>
 
-      <!-- Copy button (revealed after signup + full output typed) -->
-      <button id="copyBtn" class="copy-btn" type="button" title="Copy humanized text">
+      <!-- Copy button — amber ghost style, always visible after output, gates email on click -->
+      <button id="copyBtn" class="copy-btn" type="button" title="Copy humanized text" style="border-color:var(--accent);color:var(--accent)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         <span id="copyBtnLabel">Copy</span>
       </button>
 
-      <!-- Gate overlay (revealed when 65% typed) -->
-      <div id="gate" style="display:none">
-        <div class="gate-blur-strip"></div>
-        <div class="gate-content">
-          <div class="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold" style="background:var(--accent-dim);color:var(--accent)">
-            ✦ Your rewrite is ready
-          </div>
-          <p class="text-sm mb-4 max-w-sm mx-auto" style="color:var(--fg-soft)">Stop getting flagged. It's free.</p>
-          <form id="gateForm" class="flex gap-2 max-w-md mx-auto">
-            <input type="email" id="gateEmail" placeholder="you@email.com" required />
-            <button type="submit" class="btn-primary">Unlock →</button>
-          </form>
-        </div>
-      </div>
+      <!-- Gate overlay removed in Variant B — Copy button gates signup instead -->
     </div>
 
   </div><!-- /demo grid -->
@@ -1172,6 +1143,19 @@
   </div>
 </footer>
 
+<!-- Copy Gate Modal (Variant B) -->
+<div id="copyGate" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(10,8,5,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:420px;width:100%;text-align:center">
+    <div style="display:inline-flex;align-items:center;gap:8px;background:var(--accent-dim);color:var(--accent);padding:6px 14px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.08em;margin-bottom:16px">✦ Your rewrite is ready</div>
+    <p style="color:var(--fg-soft);font-size:14px;margin-bottom:20px">See the full result. Free, no credit card.</p>
+    <form id="copyGateForm" style="display:flex;flex-direction:column;gap:10px">
+      <input type="email" id="copyGateEmail" placeholder="you@email.com" required style="background:var(--bg-input);border:1px solid var(--border);color:var(--fg);border-radius:10px;padding:12px 14px;font-size:14px;outline:none;width:100%;box-sizing:border-box"/>
+      <button type="submit" class="btn-primary" style="width:100%">Unlock &amp; Copy →</button>
+    </form>
+    <button onclick="document.getElementById('copyGate').style.display='none'" style="background:none;border:none;color:var(--fg-muted);font-size:12px;margin-top:12px;cursor:pointer">Cancel</button>
+  </div>
+</div>
+
 <!-- Toast container -->
 <div id="toast" class="toast">
   <span style="color:var(--success)">✓</span>
@@ -1288,7 +1272,7 @@
   const inputArea = document.getElementById('inputArea');
   const outputArea = document.getElementById('outputText');
   const btn = document.getElementById('humanizeBtn');
-  const gateEl = document.getElementById('gate');
+  const gateEl = null; // Variant B: gate removed, using copyGate modal instead
   const outputPanel = document.getElementById('outputPanel');
   const humanBadge = document.getElementById('humanBadge');
   const aiScoreEl = document.getElementById('aiScore');
@@ -1350,43 +1334,33 @@
     aiScoreEl.textContent = score + '%';
   });
 
-  function typeIntoOutput(text, _speed, blurAt, humanTarget) {
+  function typeIntoOutput(text, _speed, _blurAt, humanTarget) {
+    // Variant B: always type full text, no blur gate
     if (outputTimer) { clearTimeout(outputTimer); outputTimer = null; }
     outputArea.textContent = '';
     outputArea.classList.add('typing-cursor');
     copyBtn.style.display = 'none';
-    const blurIndex = Math.floor(text.length * blurAt);
-    const stopAt = signedUp ? text.length : blurIndex;
 
     function scheduleChar(i) {
       const prevChar = i > 0 ? text[i - 1] : '';
       const isSentenceEnd = '.!?'.includes(prevChar);
       const isPunct = ',;:'.includes(prevChar);
-      // Fast base: 3–7ms; brief micro-pauses at punctuation only
-      let delay = 3 + Math.random() * 4;
-      if (isPunct) delay += 16 + Math.random() * 12;
-      if (isSentenceEnd) delay += 28 + Math.random() * 28;
+      let delay = 15 + Math.random() * 25;
+      if (isPunct) delay += 60 + Math.random() * 60;
+      if (isSentenceEnd) delay += 80 + Math.random() * 100;
       outputTimer = setTimeout(() => {
-        // Write 2 chars per tick on plain runs — feels like rapid AI stream
-        const burst = (!isSentenceEnd && !isPunct) ? 2 : 1;
-        for (let k = 0; k < burst && i + k < stopAt; k++) {
-          outputArea.textContent += text[i + k];
-        }
-        const next = Math.min(i + burst, stopAt);
-        const progress = next / text.length;
+        outputArea.textContent += text[i];
+        const progress = (i + 1) / text.length;
         if (humanScoreEl && typeof humanTarget === 'number') {
-          humanScoreEl.textContent = Math.round(humanTarget * Math.min(1, progress)) + '%';
+          humanScoreEl.textContent = Math.round(humanTarget * progress) + '%';
         }
-        if (next < stopAt) {
-          scheduleChar(next);
+        if (i + 1 < text.length) {
+          scheduleChar(i + 1);
         } else {
           outputTimer = null;
           outputArea.classList.remove('typing-cursor');
-          if (!signedUp) {
-            setTimeout(() => { gateEl.style.display = 'block'; }, 200);
-          } else {
-            copyBtn.style.display = 'inline-flex';
-          }
+          // Always show copy button after output completes
+          copyBtn.style.display = 'inline-flex';
           humanBadge.style.opacity = '1';
         }
       }, delay);
@@ -1405,8 +1379,6 @@
     outputArea.classList.remove('typing-cursor');
     humanBadge.style.opacity = '0';
     humanScoreEl.textContent = '—';
-    gateEl.style.display = 'none';
-    gateEl.style.opacity = '1';
     if (copyBtn) copyBtn.style.display = 'none';
     // Reset AI score and animate as input types
     aiScoreEl.textContent = '0%';
@@ -1509,7 +1481,6 @@
       detectorResult.classList.add('is-active');
       outputArea.style.display = 'none';
       humanBadge.style.opacity = '0';
-      gateEl.style.display = 'none';
       copyBtn.style.display = 'none';
       humanizeBtnLabel.textContent = 'Check for AI';
     } else {
@@ -1596,8 +1567,14 @@
   });
   emptyPaste.addEventListener('click', () => pasteBtn.click());
 
+  const copyGateEl = document.getElementById('copyGate');
   copyBtn.addEventListener('click', async () => {
-    const txt = signedUp ? lastHumanizedText : outputArea.textContent;
+    if (!signedUp) {
+      // Show copy gate modal
+      copyGateEl.style.display = 'flex';
+      return;
+    }
+    const txt = lastHumanizedText || outputArea.textContent;
     if (!txt) return;
     try {
       await navigator.clipboard.writeText(txt);
@@ -1610,6 +1587,18 @@
     } catch (err) {
       showToastMsg('Could not copy', false);
     }
+  });
+
+  document.getElementById('copyGateForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('copyGateEmail').value;
+    if (!email) return;
+    signedUp = true;
+    try { localStorage.setItem('humanizerco_email', email); } catch(_) {}
+    copyGateEl.style.display = 'none';
+    const txt = lastHumanizedText || outputArea.textContent;
+    try { await navigator.clipboard.writeText(txt); } catch(_) {}
+    showToastMsg('Copied! Your 3 free humanizations are ready.', true);
   });
 
   function runHumanizeOutput(outputText, targetHumanScore) {
@@ -1712,33 +1701,7 @@
     }
   }
 
-  // Gate form submit
-  document.getElementById('gateForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = document.getElementById('gateEmail').value;
-    if (!email) return;
-    signedUp = true;
-    try { localStorage.setItem('humanizerco_email', email); } catch (_) {}
-    gateEl.style.transition = 'opacity 300ms ease';
-    gateEl.style.opacity = '0';
-    setTimeout(() => {
-      gateEl.style.display = 'none';
-      const fullText = lastHumanizedText || (currentSample ? samples[currentSample].output : '');
-      if (!fullText) return;
-      const currentLen = outputArea.textContent.length;
-      let i = currentLen;
-      outputArea.classList.add('typing-cursor');
-      outputTimer = setInterval(() => {
-        outputArea.textContent += fullText[i++];
-        if (i >= fullText.length) {
-          clearInterval(outputTimer);
-          outputArea.classList.remove('typing-cursor');
-          copyBtn.style.display = 'inline-flex';
-          showToast();
-        }
-      }, 12);
-    }, 300);
-  });
+  // (old inline gate form removed in Variant B — using copyGate modal instead)
 
   function showToast() {
     showToastMsg('Your 3 free humanizations are ready.', true);
