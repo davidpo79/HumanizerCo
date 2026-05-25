@@ -1012,11 +1012,34 @@
 
     </div><!-- /grid -->
 
-    <!-- Pay-as-you-go banner -->
-    <div class="mt-6 px-6 py-4 rounded-xl text-sm text-center" style="background:oklch(18% 0.012 60);border:1px solid var(--border-soft)">
-      <span style="color:var(--fg-muted)">Need bulk words without a subscription? Add non-expiring word credits anytime</span>
-      <span style="color:var(--fg-soft)"> — e.g., </span><span style="font-family:'Special Elite','Courier New',monospace;color:var(--accent)">$5</span><span style="color:var(--fg-soft)"> for </span><span style="font-family:'Special Elite','Courier New',monospace;color:var(--accent)">50k words</span>
-      <span style="color:var(--fg-muted)"> — once you create a free account.</span>
+    <!-- Pay-as-you-go add-on banner -->
+    <div class="mt-8 rounded-2xl overflow-hidden" style="border:1px solid var(--accent);box-shadow:0 0 0 1px var(--accent-dim),0 16px 40px -12px oklch(80% 0.135 75 / 0.12)">
+      <!-- Header bar -->
+      <div class="flex items-center gap-3 px-6 py-3" style="background:var(--accent-dim);border-bottom:1px solid oklch(50% 0.10 75 / 0.25)">
+        <span style="color:var(--accent);font-size:13px">✦</span>
+        <span class="text-xs font-semibold tracking-widest uppercase" style="color:var(--accent)">Add-On</span>
+        <span class="text-xs font-semibold tracking-widest uppercase" style="color:var(--fg-dim)">· Pay-as-you-go Word Credits</span>
+      </div>
+      <!-- Body -->
+      <div class="px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4" style="background:oklch(17% 0.012 60)">
+        <div>
+          <p class="font-semibold mb-1" style="color:var(--fg)">Need bulk words without a subscription?</p>
+          <p class="text-sm" style="color:var(--fg-muted)">Add non-expiring word credits anytime — once you create a free account.</p>
+        </div>
+        <div class="flex items-center gap-3 flex-shrink-0">
+          <div class="text-center px-5 py-3 rounded-xl" style="background:var(--bg-card);border:1px solid var(--border)">
+            <span style="font-family:'Special Elite','Courier New',monospace;font-size:22px;color:var(--accent)">$5</span>
+            <p class="text-xs mt-0.5" style="color:var(--fg-muted)">for</p>
+            <span style="font-family:'Special Elite','Courier New',monospace;font-size:16px;color:var(--fg)">50k words</span>
+          </div>
+          <div style="color:var(--fg-dim);font-size:18px">·</div>
+          <div class="text-center px-5 py-3 rounded-xl" style="background:var(--bg-card);border:1px solid var(--border)">
+            <span style="font-family:'Special Elite','Courier New',monospace;font-size:22px;color:var(--accent)">$18</span>
+            <p class="text-xs mt-0.5" style="color:var(--fg-muted)">for</p>
+            <span style="font-family:'Special Elite','Courier New',monospace;font-size:16px;color:var(--fg)">200k words</span>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div>
