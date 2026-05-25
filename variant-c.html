@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- VARIANT C — Live AI probability meter (87% → ~8%) in output panel -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -413,28 +412,6 @@
   .score-badge.human svg { color: var(--accent); filter: drop-shadow(0 0 4px oklch(78% 0.14 75 / 0.7)); }
   .score-badge.human .score-label { color: oklch(70% 0.12 75); font-weight: 600; }
 
-  /* VARIANT C: AI probability widget */
-  .ai-prob-widget {
-    margin-bottom: 16px; padding: 14px; border-radius: 10px;
-    background: var(--bg-input); border: 1px solid var(--border);
-  }
-  .ai-prob-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .ai-prob-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-muted); }
-  .ai-prob-detectors { font-size: 11px; color: var(--fg-dim); }
-  .ai-prob-bar { height: 6px; border-radius: 999px; background: oklch(25% 0.01 60); overflow: hidden; margin-bottom: 8px; }
-  .ai-prob-fill {
-    height: 100%; border-radius: 999px;
-    width: 87%; background: linear-gradient(90deg, oklch(70% 0.16 28), oklch(72% 0.18 28));
-    transition: width 200ms linear, background 600ms ease;
-  }
-  .ai-prob-fill.is-amber { background: linear-gradient(90deg, oklch(76% 0.14 75), oklch(80% 0.14 75)); }
-  .ai-prob-fill.is-green { background: linear-gradient(90deg, oklch(70% 0.14 145), oklch(72% 0.15 145)); }
-  .ai-prob-row { display: flex; justify-content: space-between; align-items: baseline; }
-  .ai-prob-num { font-family: 'Fraunces', serif; font-weight: 700; font-size: 22px; font-variant-numeric: tabular-nums; color: oklch(72% 0.18 28); transition: color 600ms ease; }
-  .ai-prob-num.is-amber { color: oklch(80% 0.14 75); }
-  .ai-prob-num.is-green { color: oklch(72% 0.15 145); }
-  .ai-prob-status { font-size: 12px; color: var(--fg-muted); }
-
   /* Flow arrow between input and output */
   .flow-arrow {
     display: flex; align-items: center; justify-content: center;
@@ -787,19 +764,6 @@
           <span class="score-label">🔥 Warm Human Tone</span>
           <span id="humanScore" style="display:none">—</span>
         </span>
-      </div>
-
-      <!-- VARIANT C: AI probability meter — counts down 87% → ~8% as humanized text types out -->
-      <div id="aiProbWidget" class="ai-prob-widget" style="display:none">
-        <div class="ai-prob-header">
-          <span class="ai-prob-label">AI probability</span>
-          <span class="ai-prob-detectors">GPTZero · Turnitin · Originality.ai</span>
-        </div>
-        <div class="ai-prob-bar"><div class="ai-prob-fill" id="aiProbFill"></div></div>
-        <div class="ai-prob-row">
-          <span class="ai-prob-num" id="aiProbNum">87%</span>
-          <span class="ai-prob-status" id="aiProbStatus">Will be flagged</span>
-        </div>
       </div>
 
       <!-- Platen line above output paper -->
@@ -1338,45 +1302,6 @@
   let currentMode = 'humanize'; // 'humanize' | 'detect'
   let isLoading = false;
 
-  // ===== VARIANT C: AI probability widget =====
-  const aiProbWidget = document.getElementById('aiProbWidget');
-  const aiProbFill = document.getElementById('aiProbFill');
-  const aiProbNum = document.getElementById('aiProbNum');
-  const aiProbStatus = document.getElementById('aiProbStatus');
-  const AI_PROB_START = 87;
-  const AI_PROB_END = 8;
-  function updateAiProb(progress) {
-    const p = Math.max(0, Math.min(1, progress));
-    const eased = 1 - Math.pow(1 - p, 2);
-    const val = Math.round(AI_PROB_START + (AI_PROB_END - AI_PROB_START) * eased);
-    if (aiProbFill) aiProbFill.style.width = val + '%';
-    if (aiProbNum) aiProbNum.textContent = val + '%';
-    let cls = '';
-    let status = 'Will be flagged';
-    if (val <= 30) { cls = 'is-green'; status = 'Reads as human'; }
-    else if (val <= 60) { cls = 'is-amber'; status = 'Borderline'; }
-    if (aiProbFill) {
-      aiProbFill.classList.remove('is-amber', 'is-green');
-      if (cls) aiProbFill.classList.add(cls);
-    }
-    if (aiProbNum) {
-      aiProbNum.classList.remove('is-amber', 'is-green');
-      if (cls) aiProbNum.classList.add(cls);
-    }
-    if (aiProbStatus) aiProbStatus.textContent = status;
-  }
-  function resetAiProb() {
-    if (aiProbFill) {
-      aiProbFill.classList.remove('is-amber', 'is-green');
-      aiProbFill.style.width = AI_PROB_START + '%';
-    }
-    if (aiProbNum) {
-      aiProbNum.classList.remove('is-amber', 'is-green');
-      aiProbNum.textContent = AI_PROB_START + '%';
-    }
-    if (aiProbStatus) aiProbStatus.textContent = 'Will be flagged';
-  }
-
   // ===== UTILITY =====
   function animateScore(el, from, to, duration) {
     const start = performance.now();
@@ -1424,13 +1349,13 @@
     aiScoreEl.textContent = score + '%';
   });
 
-  function typeIntoOutput(text, _speed, blurAt, humanTarget) {
+  function typeIntoOutput(text, _speed, blurAt, humanTarget, gated = true) {
     if (outputTimer) { clearTimeout(outputTimer); outputTimer = null; }
     outputArea.textContent = '';
     outputArea.classList.add('typing-cursor');
     copyBtn.style.display = 'none';
     const blurIndex = Math.floor(text.length * blurAt);
-    const stopAt = signedUp ? text.length : blurIndex;
+    const stopAt = (signedUp || !gated) ? text.length : blurIndex;
 
     function scheduleChar(i) {
       const prevChar = i > 0 ? text[i - 1] : '';
@@ -1451,13 +1376,12 @@
         if (humanScoreEl && typeof humanTarget === 'number') {
           humanScoreEl.textContent = Math.round(humanTarget * Math.min(1, progress)) + '%';
         }
-        updateAiProb(progress); // VARIANT C: animate AI probability meter
         if (next < stopAt) {
           scheduleChar(next);
         } else {
           outputTimer = null;
           outputArea.classList.remove('typing-cursor');
-          if (!signedUp) {
+          if (!signedUp && gated) {
             setTimeout(() => { gateEl.style.display = 'block'; }, 200);
           } else {
             copyBtn.style.display = 'inline-flex';
@@ -1586,13 +1510,10 @@
       humanBadge.style.opacity = '0';
       gateEl.style.display = 'none';
       copyBtn.style.display = 'none';
-      if (aiProbWidget) aiProbWidget.style.display = 'none'; // VARIANT C: hide meter in detect mode
       humanizeBtnLabel.textContent = 'Check for AI';
     } else {
       detectorResult.classList.remove('is-active');
       outputArea.style.display = '';
-      // VARIANT C: restore meter if we have humanized output
-      if (aiProbWidget && lastHumanizedText) aiProbWidget.style.display = 'block';
       humanizeBtnLabel.textContent = 'Humanize Text';
     }
   }
@@ -1697,10 +1618,8 @@
     }
     humanBadge.style.opacity = '1';
     humanScoreEl.textContent = '0%';
-    // VARIANT C: Show and reset the AI probability meter before typing starts
-    if (aiProbWidget) aiProbWidget.style.display = 'block';
-    resetAiProb();
-    typeIntoOutput(outputText, 14, 0.65, targetHumanScore);
+    const isSample = currentSample !== null;
+    typeIntoOutput(outputText, 14, 0.65, targetHumanScore, !isSample);
   }
 
   btn.addEventListener('click', () => {

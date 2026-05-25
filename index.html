@@ -1349,13 +1349,13 @@
     aiScoreEl.textContent = score + '%';
   });
 
-  function typeIntoOutput(text, _speed, blurAt, humanTarget) {
+  function typeIntoOutput(text, _speed, blurAt, humanTarget, gated = true) {
     if (outputTimer) { clearTimeout(outputTimer); outputTimer = null; }
     outputArea.textContent = '';
     outputArea.classList.add('typing-cursor');
     copyBtn.style.display = 'none';
     const blurIndex = Math.floor(text.length * blurAt);
-    const stopAt = signedUp ? text.length : blurIndex;
+    const stopAt = (signedUp || !gated) ? text.length : blurIndex;
 
     function scheduleChar(i) {
       const prevChar = i > 0 ? text[i - 1] : '';
@@ -1381,7 +1381,7 @@
         } else {
           outputTimer = null;
           outputArea.classList.remove('typing-cursor');
-          if (!signedUp) {
+          if (!signedUp && gated) {
             setTimeout(() => { gateEl.style.display = 'block'; }, 200);
           } else {
             copyBtn.style.display = 'inline-flex';
@@ -1618,7 +1618,8 @@
     }
     humanBadge.style.opacity = '1';
     humanScoreEl.textContent = '0%';
-    typeIntoOutput(outputText, 14, 0.65, targetHumanScore);
+    const isSample = currentSample !== null;
+    typeIntoOutput(outputText, 14, 0.65, targetHumanScore, !isSample);
   }
 
   btn.addEventListener('click', () => {
