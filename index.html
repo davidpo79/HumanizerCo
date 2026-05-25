@@ -112,7 +112,7 @@
     transition: border-color 160ms ease, box-shadow 160ms ease;
   }
   textarea {
-    font-family: var(--font-mono); font-size: 13.5px; line-height: 1.8; letter-spacing: 0.01em;
+    font-family: 'Special Elite', 'Courier New', monospace !important; font-size: 15px !important; line-height: 1.8; letter-spacing: 0.01em;
     background-image: repeating-linear-gradient(
       to bottom,
       transparent 0,
@@ -130,9 +130,9 @@
 
   /* Output text styling */
   .output-content {
-    font-size: 13.5px; line-height: 1.8; color: var(--fg);
-    min-height: 240px; padding: 4px 2px;
-    font-family: var(--font-mono); letter-spacing: 0.01em;
+    font-family: 'Special Elite', 'Courier New', monospace !important;
+    font-size: 15px !important; line-height: 1.8; color: var(--fg);
+    min-height: 240px; padding: 4px 2px; letter-spacing: 0.01em;
   }
   .output-content p { margin-bottom: 12px; }
 
@@ -156,8 +156,10 @@
 
   /* Caret/cursor for typing effect */
   .typing-cursor::after {
-    content: "_"; color: var(--accent);
-    font-family: var(--font-mono);
+    content: "_";
+    color: var(--accent);
+    font-family: 'Special Elite', 'Courier New', monospace !important;
+    font-size: 15px;
     animation: blink 0.6s steps(1, end) infinite;
     margin-left: 1px;
   }
@@ -242,30 +244,37 @@
     box-shadow: 0 4px 12px -4px oklch(80% 0.135 75 / 0.55);
   }
   .mode-btn.active:hover { color: var(--accent-on); }
-  /* Detect mode gets a distinct blue active state */
+  /* Detect toggle uses the same amber — both modes share the brand colour */
   .mode-btn.active[data-mode="detect"] {
-    color: var(--detect-on);
-    background: var(--detect);
-    box-shadow: 0 4px 12px -4px oklch(63% 0.08 150 / 0.50);
+    color: var(--accent-on);
+    background: var(--accent);
+    box-shadow: 0 4px 12px -4px oklch(80% 0.135 75 / 0.45);
   }
-  .mode-btn.active[data-mode="detect"]:hover { color: var(--detect-on); }
+  .mode-btn.active[data-mode="detect"]:hover { color: var(--accent-on); }
 
-  /* Detect-mode panel styling */
+  /* "Check for AI" button: ghost treatment — transparent bg, amber outline */
   #humanizeBtn.detect-active {
-    background: var(--detect);
-    box-shadow: 0 1px 0 oklch(95% 0.05 80 / 0.3) inset, 0 8px 24px -8px oklch(63% 0.08 150 / 0.4);
+    background: transparent !important;
+    color: var(--accent) !important;
+    border: 1.5px solid var(--accent) !important;
+    box-shadow: none !important;
   }
-  #humanizeBtn.detect-active:hover { background: var(--detect-hi); }
-  #outputPanel.detect-mode { border-color: oklch(63% 0.08 150 / 0.50); }
-  #outputPanel.detect-mode #outputDot { background: var(--detect); box-shadow: 0 0 8px var(--detect); }
-  #inputPanel.detect-mode { border-color: oklch(63% 0.08 150 / 0.30); }
+  #humanizeBtn.detect-active:hover {
+    background: var(--accent-dim) !important;
+    transform: translateY(-1px);
+  }
+
+  /* Panel borders in detect mode: subtle amber tint */
+  #outputPanel.detect-mode { border-color: oklch(80% 0.135 75 / 0.45); }
+  #outputPanel.detect-mode #outputDot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  #inputPanel.detect-mode { border-color: oklch(80% 0.135 75 / 0.30); }
 
   /* Pulsing scan dot on input card in detect mode */
   @keyframes scanPulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.4; transform: scale(1.6); }
   }
-  #inputDot.scanning { animation: scanPulse 1.4s ease-in-out infinite; background: var(--detect) !important; }
+  #inputDot.scanning { animation: scanPulse 1.4s ease-in-out infinite; background: var(--accent) !important; }
 
   /* Empty state tiles inside the textarea container */
   .input-wrap { position: relative; }
@@ -515,6 +524,27 @@
     .nav-mobile-menu { display: none !important; }
   }
 
+  /* Trust bar stamped badges */
+  .trust-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: oklch(18% 0.01 60);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 16px;
+    font-size: 13px;
+  }
+  .trust-badge-num {
+    font-family: 'Special Elite', 'Courier New', monospace;
+    font-size: 15px; font-weight: 400;
+    color: var(--fg);
+    letter-spacing: 0.02em;
+  }
+  .trust-badge-label { color: var(--fg-muted); }
+  .trust-badge-detectors {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.03em;
+    color: var(--fg-soft);
+  }
+
   /* Subtle border accent line under nav */
   .nav-border { border-bottom: 1px solid var(--border-soft); }
 
@@ -762,22 +792,29 @@
 
 <!-- TRUST BAR -->
 <div class="border-t border-b hairline">
-  <div class="max-w-7xl mx-auto px-6 md:px-8 py-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm" style="color:var(--fg-muted)">
-    <span class="flex items-center gap-2">
-      <span class="inline-block w-1.5 h-1.5 rounded-full" style="background:var(--success);box-shadow:0 0 8px var(--success)"></span>
-      <span><span class="font-semibold" style="color:var(--fg)" id="counter">47,319</span> texts humanized today</span>
-    </span>
-    <span class="hidden md:inline" style="color:var(--fg-dim)">·</span>
-    <span class="flex items-center gap-2">
-      <span style="color:var(--accent)">★★★★★</span>
-      <span><span class="font-semibold" style="color:var(--fg)">4.9</span> from 2,400+ users</span>
-    </span>
-    <span class="hidden md:inline" style="color:var(--fg-dim)">·</span>
-    <span>
-      <span style="color:var(--accent)">✓</span> GPTZero &nbsp;
-      <span style="color:var(--accent)">✓</span> Turnitin &nbsp;
-      <span style="color:var(--accent)">✓</span> Originality.ai
-    </span>
+  <div class="max-w-7xl mx-auto px-6 md:px-8 py-5 flex flex-wrap items-center justify-center gap-3">
+
+    <!-- Badge 1: Live counter -->
+    <div class="trust-badge">
+      <span class="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:var(--success);box-shadow:0 0 8px var(--success)"></span>
+      <span class="trust-badge-num" id="counter">47,319</span>
+      <span class="trust-badge-label">texts humanized today</span>
+    </div>
+
+    <!-- Badge 2: Star rating -->
+    <div class="trust-badge">
+      <span style="color:var(--accent);letter-spacing:1px">★★★★★</span>
+      <span class="trust-badge-num">4.9</span>
+      <span class="trust-badge-label">/ 5 from 2,400+ writers</span>
+    </div>
+
+    <!-- Badge 3: Detector compatibility -->
+    <div class="trust-badge">
+      <span style="color:var(--accent);font-size:11px;font-weight:700">✓</span>
+      <span class="trust-badge-label">Works on</span>
+      <span class="trust-badge-detectors">GPTZero · Turnitin · Originality.ai</span>
+    </div>
+
   </div>
 </div>
 
