@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- VARIANT A — Gate moved from mid-text blur to a locked Copy button after full output -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -141,21 +140,23 @@
   }
   .output-content p { margin-bottom: 12px; }
 
-  /* VARIANT A: Gate is a fixed modal overlay triggered by Copy button click */
-  .gate-modal-backdrop {
-    position: fixed; inset: 0; z-index: 100;
-    background: oklch(10% 0.008 60 / 0.75);
-    backdrop-filter: blur(4px);
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
+  /* Blur gate */
+  .gate-blur-strip {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    height: 78%;
+    background: linear-gradient(to bottom,
+      oklch(19% 0.014 60 / 0) 0%,
+      oklch(19% 0.014 60 / 0.85) 35%,
+      oklch(19% 0.014 60 / 1) 70%);
+    backdrop-filter: blur(2.5px);
+    pointer-events: none;
+    border-radius: 0 0 14px 14px;
   }
-  .gate-modal-box {
-    background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: 18px; padding: 32px 28px;
-    max-width: 420px; width: 100%; text-align: center;
-    box-shadow: 0 32px 64px -12px oklch(5% 0.01 60 / 0.7);
+  .gate-content {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 28px 20px 20px;
+    text-align: center;
   }
-  .gate-content { text-align: center; }
 
   /* Caret/cursor for typing effect */
   .typing-cursor::after {
@@ -330,8 +331,8 @@
   }
   .detector-verdict {
     text-align: center; font-size: 13px; padding: 10px 14px; border-radius: 10px;
-    background: oklch(30% 0.10 28 / 0.20); color: oklch(78% 0.14 28);
-    border: 1px solid oklch(50% 0.14 28 / 0.30);
+    background: oklch(20% 0.08 250 / 0.30); color: var(--ai-cold);
+    border: 1px solid oklch(75% 0.15 250 / 0.25);
     margin-bottom: 18px;
   }
   .det-row {
@@ -347,7 +348,8 @@
   .det-row .det-bar-fill {
     display: block;
     height: 100%; border-radius: 999px;
-    background: linear-gradient(90deg, hsl(18, 72%, 52%), hsl(14, 76%, 56%));
+    background: linear-gradient(90deg, oklch(68% 0.16 250), oklch(76% 0.15 250));
+    box-shadow: 0 0 8px oklch(75% 0.15 250 / 0.55);
     width: 0; transition: width 900ms cubic-bezier(.5,.05,.5,.95);
   }
   .det-row .det-num {
@@ -585,6 +587,7 @@
 </style>
 </head>
 <body class="bg-grain">
+<!-- VARIANT A: Zero-Click Aha! Moment — auto-runs demo on load, no sample tiles -->
 
 <!-- NAV -->
 <nav id="nav" class="nav-border sticky top-0 z-30 transition-colors">
@@ -686,9 +689,8 @@
         </span>
       </div>
 
-      <!-- Sample pills + actions -->
-      <div class="flex items-center justify-between mb-2 gap-3">
-        <p class="text-xs" style="color:var(--fg-dim)">No text? Try a sample, or:</p>
+      <!-- Actions row (paste / upload only — no label, no pills) -->
+      <div class="flex items-center justify-end mb-2 gap-3">
         <div class="flex gap-1.5">
           <button class="icon-btn" id="pasteBtn" type="button" title="Paste from clipboard">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 4H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/></svg>
@@ -701,29 +703,12 @@
           <input id="fileInput" type="file" accept=".txt,.md,.text,text/plain,text/markdown" style="display:none">
         </div>
       </div>
-      <div class="mb-3">
-        <div class="flex flex-wrap gap-2" id="pills">
-          <button class="pill" data-sample="academic">🎓 Academic</button>
-          <button class="pill" data-sample="professional">💼 Professional</button>
-          <button class="pill" data-sample="casual">👋 Casual</button>
-          <button class="pill" data-sample="cover">📄 Cover Letter</button>
-        </div>
-      </div>
 
       <!-- Typewriter platen line: amber bar that paper feeds through -->
       <div style="height:3px;border-radius:2px;margin-bottom:6px;background:linear-gradient(90deg, transparent 0%, var(--accent) 15%, var(--accent) 85%, transparent 100%);opacity:0.55"></div>
       <div class="input-wrap">
         <textarea id="inputArea" rows="6" placeholder=" "></textarea>
-        <div id="emptyState" class="empty-state">
-          <button class="empty-tile" id="emptySample" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
-            Try a sample
-          </button>
-          <button class="empty-tile" id="emptyPaste" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
-            Paste text
-          </button>
-        </div>
+
       </div>
 
       <button id="humanizeBtn" class="btn-primary w-full mt-4">
@@ -793,31 +778,30 @@
         </button>
       </div>
 
-      <!-- VARIANT A: Copy button always visible after full output types (gate fires on click) -->
+      <!-- Copy button (revealed after signup + full output typed) -->
       <button id="copyBtn" class="copy-btn" type="button" title="Copy humanized text">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         <span id="copyBtnLabel">Copy</span>
       </button>
+
+      <!-- Gate overlay (revealed when 65% typed) -->
+      <div id="gate" style="display:none">
+        <div class="gate-blur-strip"></div>
+        <div class="gate-content">
+          <div class="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold" style="background:var(--accent-dim);color:var(--accent)">
+            ✦ Your rewrite is ready
+          </div>
+          <p class="text-sm mb-4 max-w-sm mx-auto" style="color:var(--fg-soft)">See the full result. Free, no credit card.</p>
+          <form id="gateForm" class="flex gap-2 max-w-md mx-auto">
+            <input type="email" id="gateEmail" placeholder="you@email.com" required />
+            <button type="submit" class="btn-primary">Unlock →</button>
+          </form>
+        </div>
+      </div>
     </div>
 
   </div><!-- /demo grid -->
 </section>
-
-<!-- VARIANT A: Gate modal — triggered by Copy button if not signed up -->
-<div id="gate" style="display:none" class="gate-modal-backdrop" role="dialog" aria-modal="true">
-  <div class="gate-modal-box">
-    <div class="gate-content">
-      <div class="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold" style="background:var(--accent-dim);color:var(--accent)">
-        ✦ Your rewrite is ready
-      </div>
-      <p class="text-sm mb-4 max-w-sm mx-auto" style="color:var(--fg-soft)">See the full result. Free, no credit card.</p>
-      <form id="gateForm" class="flex gap-2 max-w-md mx-auto">
-        <input type="email" id="gateEmail" placeholder="you@email.com" required />
-        <button type="submit" class="btn-primary">Unlock →</button>
-      </form>
-    </div>
-  </div>
-</div>
 
 <!-- TRUST BAR -->
 <div class="border-t border-b hairline">
@@ -1319,12 +1303,10 @@
     clearInterval(typingTimer);
     isProgrammaticInput = true;
     inputArea.value = '';
-    if (typeof updateEmptyState === 'function') updateEmptyState();
     let i = 0;
     typingTimer = setInterval(() => {
       inputArea.value += text[i++];
       inputArea.scrollTop = inputArea.scrollHeight;
-      if (typeof updateEmptyState === 'function') updateEmptyState();
       if (onProgress) onProgress(i / text.length);
       if (i >= text.length) {
         clearInterval(typingTimer);
@@ -1349,12 +1331,13 @@
     aiScoreEl.textContent = score + '%';
   });
 
-  function typeIntoOutput(text, _speed, blurAt, humanTarget) {
+  function typeIntoOutput(text, _speed, blurAt, humanTarget, gated = true) {
     if (outputTimer) { clearTimeout(outputTimer); outputTimer = null; }
     outputArea.textContent = '';
     outputArea.classList.add('typing-cursor');
     copyBtn.style.display = 'none';
-    // VARIANT A: Always type the full text — gate fires on Copy click, not mid-output
+    const blurIndex = Math.floor(text.length * blurAt);
+    const stopAt = (signedUp || !gated) ? text.length : blurIndex;
 
     function scheduleChar(i) {
       const prevChar = i > 0 ? text[i - 1] : '';
@@ -1367,21 +1350,24 @@
       outputTimer = setTimeout(() => {
         // Write 2 chars per tick on plain runs — feels like rapid AI stream
         const burst = (!isSentenceEnd && !isPunct) ? 2 : 1;
-        for (let k = 0; k < burst && i + k < text.length; k++) {
+        for (let k = 0; k < burst && i + k < stopAt; k++) {
           outputArea.textContent += text[i + k];
         }
-        const next = Math.min(i + burst, text.length);
+        const next = Math.min(i + burst, stopAt);
         const progress = next / text.length;
         if (humanScoreEl && typeof humanTarget === 'number') {
           humanScoreEl.textContent = Math.round(humanTarget * Math.min(1, progress)) + '%';
         }
-        if (next < text.length) {
+        if (next < stopAt) {
           scheduleChar(next);
         } else {
           outputTimer = null;
           outputArea.classList.remove('typing-cursor');
-          // VARIANT A: Always show Copy button — gate fires when Copy is clicked
-          copyBtn.style.display = 'inline-flex';
+          if (!signedUp && gated) {
+            setTimeout(() => { gateEl.style.display = 'block'; }, 200);
+          } else {
+            copyBtn.style.display = 'inline-flex';
+          }
           humanBadge.style.opacity = '1';
         }
       }, delay);
@@ -1533,8 +1519,8 @@
       const t = Math.min(1, (now - start) / 1100);
       const eased = 1 - Math.pow(1 - t, 2);
       meterNum.textContent = Math.round(startVal + (avg - startVal) * eased) + '%';
-      // Color shifts based on score
-      const c = avg > 60 ? 'hsl(14, 76%, 56%)' : avg > 30 ? 'hsl(38, 80%, 58%)' : 'hsl(142, 45%, 52%)';
+      // AI detected = ice blue; clean = green
+      const c = avg > 30 ? 'oklch(75% 0.15 250)' : 'hsl(142, 45%, 52%)';
       meterNum.style.color = c;
       if (t < 1) requestAnimationFrame(step);
     };
@@ -1547,11 +1533,13 @@
         if (fill) fill.style.width = val + '%';
         if (num) num.textContent = val + '%';
         if (fill) {
-          fill.style.background = val > 60
-            ? 'linear-gradient(90deg, hsl(18, 72%, 52%), hsl(14, 76%, 56%))'
-            : val > 30
-            ? 'linear-gradient(90deg, hsl(36, 75%, 54%), hsl(38, 80%, 58%))'
+          const isAI = val > 30;
+          fill.style.background = isAI
+            ? 'linear-gradient(90deg, oklch(65% 0.16 250), oklch(78% 0.15 250))'
             : 'linear-gradient(90deg, hsl(140, 44%, 48%), hsl(142, 45%, 52%))';
+          fill.style.boxShadow = isAI
+            ? `0 0 ${Math.round(val / 10)}px oklch(75% 0.15 250 / 0.6)`
+            : 'none';
         }
       }, 200 + i * 180);
     });
@@ -1561,9 +1549,11 @@
       : avg > 40
       ? 'Mixed signals. Some detectors will flag it.'
       : 'Reads as genuinely human. You should be fine.';
-    detectorVerdict.style.background = avg > 60 ? 'hsla(14, 60%, 22%, 0.35)' : avg > 30 ? 'hsla(36, 55%, 22%, 0.35)' : 'hsla(140, 40%, 18%, 0.35)';
-    detectorVerdict.style.color = avg > 60 ? 'hsl(14, 70%, 64%)' : avg > 30 ? 'hsl(38, 75%, 62%)' : 'hsl(142, 44%, 58%)';
-    detectorVerdict.style.borderColor = avg > 60 ? 'hsla(14, 65%, 45%, 0.35)' : avg > 30 ? 'hsla(36, 60%, 45%, 0.35)' : 'hsla(140, 45%, 40%, 0.35)';
+    // Ice blue for any AI signal; green only when clean
+    const isAIResult = avg > 30;
+    detectorVerdict.style.background = isAIResult ? 'oklch(20% 0.08 250 / 0.35)' : 'hsla(140, 40%, 18%, 0.35)';
+    detectorVerdict.style.color     = isAIResult ? 'oklch(75% 0.15 250)'          : 'hsl(142, 44%, 58%)';
+    detectorVerdict.style.borderColor = isAIResult ? 'oklch(75% 0.15 250 / 0.35)' : 'hsla(140, 45%, 40%, 0.35)';
     switchToHumanize.style.display = avg > 50 ? 'inline-flex' : 'none';
   }
 
@@ -1572,34 +1562,10 @@
     setTimeout(() => btn.click(), 350);
   });
 
-  // ===== EMPTY STATE =====
-  const emptyState = document.getElementById('emptyState');
-  const emptySample = document.getElementById('emptySample');
-  const emptyPaste = document.getElementById('emptyPaste');
-
-  function updateEmptyState() {
-    const isEmpty = !inputArea.value.trim();
-    emptyState.classList.toggle('hidden', !isEmpty);
-  }
-  inputArea.addEventListener('input', updateEmptyState);
-
-  emptySample.addEventListener('click', () => {
-    const keys = Object.keys(samples);
-    const pick = keys[Math.floor(Math.random() * keys.length)];
-    loadSample(pick);
-    setTimeout(updateEmptyState, 50);
-  });
-  emptyPaste.addEventListener('click', () => pasteBtn.click());
+  // (empty state tiles removed in Variant A — auto-demo runs instead)
 
   copyBtn.addEventListener('click', async () => {
-    // VARIANT A: If not signed up, show gate modal instead of copying
-    if (!signedUp) {
-      gateEl.style.display = 'flex';
-      const emailInput = document.getElementById('gateEmail');
-      if (emailInput) setTimeout(() => emailInput.focus(), 100);
-      return;
-    }
-    const txt = lastHumanizedText || outputArea.textContent;
+    const txt = signedUp ? lastHumanizedText : outputArea.textContent;
     if (!txt) return;
     try {
       await navigator.clipboard.writeText(txt);
@@ -1621,7 +1587,8 @@
     }
     humanBadge.style.opacity = '1';
     humanScoreEl.textContent = '0%';
-    typeIntoOutput(outputText, 14, 0.65, targetHumanScore);
+    const isSample = currentSample !== null;
+    typeIntoOutput(outputText, 14, 0.65, targetHumanScore, !isSample);
   }
 
   btn.addEventListener('click', () => {
@@ -1715,39 +1682,31 @@
   }
 
   // Gate form submit
-  document.getElementById('gateForm').addEventListener('submit', async (e) => {
+  document.getElementById('gateForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const email = document.getElementById('gateEmail').value;
     if (!email) return;
     signedUp = true;
     try { localStorage.setItem('humanizerco_email', email); } catch (_) {}
-    // VARIANT A: Full text already shown — close modal, copy the text, show toast
     gateEl.style.transition = 'opacity 300ms ease';
     gateEl.style.opacity = '0';
-    setTimeout(async () => {
+    setTimeout(() => {
       gateEl.style.display = 'none';
-      gateEl.style.opacity = '1';
-      const txt = lastHumanizedText || outputArea.textContent;
-      if (txt) {
-        try {
-          await navigator.clipboard.writeText(txt);
-          copyBtn.classList.add('copied');
-          copyBtnLabel.textContent = 'Copied';
-          setTimeout(() => {
-            copyBtn.classList.remove('copied');
-            copyBtnLabel.textContent = 'Copy';
-          }, 1800);
-        } catch (_) {}
-      }
-      showToast();
+      const fullText = lastHumanizedText || (currentSample ? samples[currentSample].output : '');
+      if (!fullText) return;
+      const currentLen = outputArea.textContent.length;
+      let i = currentLen;
+      outputArea.classList.add('typing-cursor');
+      outputTimer = setInterval(() => {
+        outputArea.textContent += fullText[i++];
+        if (i >= fullText.length) {
+          clearInterval(outputTimer);
+          outputArea.classList.remove('typing-cursor');
+          copyBtn.style.display = 'inline-flex';
+          showToast();
+        }
+      }, 12);
     }, 300);
-  });
-
-  // VARIANT A: Close gate modal when clicking backdrop
-  gateEl.addEventListener('click', (e) => {
-    if (e.target === gateEl) {
-      gateEl.style.display = 'none';
-    }
   });
 
   function showToast() {
@@ -1817,8 +1776,8 @@
     document.querySelectorAll('.reveal').forEach((el, i) => {
       setTimeout(() => el.classList.add('in'), 80 + i * 90);
     });
-    // Show empty-state tiles on load so user sees the two choice buttons
-    updateEmptyState();
+    // Auto-load academic sample after reveal animations complete
+    setTimeout(() => loadSample('academic'), 1100);
   });
 
   // ===== HOW IT WORKS: SCROLL-TRIGGERED STEP ANIMATION =====

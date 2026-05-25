@@ -315,8 +315,8 @@
   }
   .detector-verdict {
     text-align: center; font-size: 13px; padding: 10px 14px; border-radius: 10px;
-    background: oklch(30% 0.10 28 / 0.20); color: oklch(78% 0.14 28);
-    border: 1px solid oklch(50% 0.14 28 / 0.30);
+    background: oklch(20% 0.08 250 / 0.30); color: var(--ai-cold);
+    border: 1px solid oklch(75% 0.15 250 / 0.25);
     margin-bottom: 18px;
   }
   .det-row {
@@ -332,7 +332,8 @@
   .det-row .det-bar-fill {
     display: block;
     height: 100%; border-radius: 999px;
-    background: linear-gradient(90deg, hsl(18, 72%, 52%), hsl(14, 76%, 56%));
+    background: linear-gradient(90deg, oklch(68% 0.16 250), oklch(76% 0.15 250));
+    box-shadow: 0 0 8px oklch(75% 0.15 250 / 0.55);
     width: 0; transition: width 900ms cubic-bezier(.5,.05,.5,.95);
   }
   .det-row .det-num {
@@ -1509,8 +1510,8 @@
       const t = Math.min(1, (now - start) / 1100);
       const eased = 1 - Math.pow(1 - t, 2);
       meterNum.textContent = Math.round(startVal + (avg - startVal) * eased) + '%';
-      // Color shifts based on score
-      const c = avg > 60 ? 'hsl(14, 76%, 56%)' : avg > 30 ? 'hsl(38, 80%, 58%)' : 'hsl(142, 45%, 52%)';
+      // AI detected = ice blue; clean = green
+      const c = avg > 30 ? 'oklch(75% 0.15 250)' : 'hsl(142, 45%, 52%)';
       meterNum.style.color = c;
       if (t < 1) requestAnimationFrame(step);
     };
@@ -1523,11 +1524,13 @@
         if (fill) fill.style.width = val + '%';
         if (num) num.textContent = val + '%';
         if (fill) {
-          fill.style.background = val > 60
-            ? 'linear-gradient(90deg, hsl(18, 72%, 52%), hsl(14, 76%, 56%))'
-            : val > 30
-            ? 'linear-gradient(90deg, hsl(36, 75%, 54%), hsl(38, 80%, 58%))'
+          const isAI = val > 30;
+          fill.style.background = isAI
+            ? 'linear-gradient(90deg, oklch(65% 0.16 250), oklch(78% 0.15 250))'
             : 'linear-gradient(90deg, hsl(140, 44%, 48%), hsl(142, 45%, 52%))';
+          fill.style.boxShadow = isAI
+            ? `0 0 ${Math.round(val / 10)}px oklch(75% 0.15 250 / 0.6)`
+            : 'none';
         }
       }, 200 + i * 180);
     });
@@ -1537,9 +1540,11 @@
       : avg > 40
       ? 'Mixed signals. Some detectors will flag it.'
       : 'Reads as genuinely human. You should be fine.';
-    detectorVerdict.style.background = avg > 60 ? 'hsla(14, 60%, 22%, 0.35)' : avg > 30 ? 'hsla(36, 55%, 22%, 0.35)' : 'hsla(140, 40%, 18%, 0.35)';
-    detectorVerdict.style.color = avg > 60 ? 'hsl(14, 70%, 64%)' : avg > 30 ? 'hsl(38, 75%, 62%)' : 'hsl(142, 44%, 58%)';
-    detectorVerdict.style.borderColor = avg > 60 ? 'hsla(14, 65%, 45%, 0.35)' : avg > 30 ? 'hsla(36, 60%, 45%, 0.35)' : 'hsla(140, 45%, 40%, 0.35)';
+    // Ice blue for any AI signal; green only when clean
+    const isAIResult = avg > 30;
+    detectorVerdict.style.background = isAIResult ? 'oklch(20% 0.08 250 / 0.35)' : 'hsla(140, 40%, 18%, 0.35)';
+    detectorVerdict.style.color     = isAIResult ? 'oklch(75% 0.15 250)'          : 'hsl(142, 44%, 58%)';
+    detectorVerdict.style.borderColor = isAIResult ? 'oklch(75% 0.15 250 / 0.35)' : 'hsla(140, 45%, 40%, 0.35)';
     switchToHumanize.style.display = avg > 50 ? 'inline-flex' : 'none';
   }
 
