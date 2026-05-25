@@ -8,7 +8,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=DM+Sans:wght@400;500;600;700&family=Special+Elite&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg:          oklch(14% 0.012 60);
@@ -27,6 +27,7 @@
     --success-dim: oklch(30% 0.080 145 / 0.35);
     --border:      oklch(28% 0.014 60 / 0.7);
     --border-soft: oklch(24% 0.014 60 / 0.5);
+    --font-mono:   'Special Elite', 'Courier New', monospace;
   }
 
   * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
@@ -106,6 +107,9 @@
     outline: none; resize: none;
     transition: border-color 160ms ease, box-shadow 160ms ease;
   }
+  textarea {
+    font-family: var(--font-mono); font-size: 13.5px; line-height: 1.8; letter-spacing: 0.01em;
+  }
   textarea:focus, input[type="email"]:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 3px oklch(80% 0.135 75 / 0.15);
@@ -113,9 +117,9 @@
 
   /* Output text styling */
   .output-content {
-    font-size: 14.5px; line-height: 1.85; color: var(--fg);
+    font-size: 13.5px; line-height: 1.8; color: var(--fg);
     min-height: 240px; padding: 4px 2px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-mono); letter-spacing: 0.01em;
   }
   .output-content p { margin-bottom: 12px; }
 
@@ -139,11 +143,24 @@
 
   /* Caret/cursor for typing effect */
   .typing-cursor::after {
-    content: "▋"; color: var(--accent);
-    animation: blink 0.9s steps(2, end) infinite;
-    margin-left: 2px;
+    content: "_"; color: var(--accent);
+    font-family: var(--font-mono);
+    animation: blink 0.6s steps(1, end) infinite;
+    margin-left: 1px;
   }
-  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* Loading state in output panel */
+  .loading-bar-track {
+    height: 3px; background: var(--border); border-radius: 999px; overflow: hidden; margin-bottom: 18px;
+  }
+  .loading-bar-fill {
+    height: 100%; width: 0; background: var(--accent); border-radius: 999px;
+    transition: width 8s ease-out;
+  }
+  .loading-label {
+    font-family: var(--font-mono); font-size: 13px; color: var(--fg-muted);
+  }
 
   /* Pulse animation for CTA */
   @keyframes ctaPulse {
@@ -393,9 +410,15 @@
 <nav id="nav" class="nav-border sticky top-0 z-30 transition-colors">
   <div class="max-w-7xl mx-auto px-6 md:px-8 py-4 flex items-center justify-between">
     <a href="#" class="flex items-center gap-3 group">
-      <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg" style="background: linear-gradient(135deg, var(--accent), oklch(70% 0.14 50)); color: var(--accent-on);">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v13"/><path d="M9 21v-7a3 3 0 0 1 6 0v7"/></svg>
-      </span>
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <rect x="4" y="10" width="24" height="3" rx="1.5" fill="var(--accent)"/>
+        <rect x="13" y="13" width="6" height="7" rx="1" fill="var(--accent)" opacity="0.85"/>
+        <circle cx="7" cy="11.5" r="2" fill="var(--accent)" opacity="0.6"/>
+        <circle cx="25" cy="11.5" r="2" fill="var(--accent)" opacity="0.6"/>
+        <rect x="10" y="4" width="12" height="7" rx="1" fill="var(--accent)" opacity="0.25"/>
+        <line x1="12" y1="6" x2="20" y2="6" stroke="var(--accent)" stroke-width="1" opacity="0.5"/>
+        <line x1="12" y1="8" x2="18" y2="8" stroke="var(--accent)" stroke-width="1" opacity="0.5"/>
+      </svg>
       <span class="display text-xl font-bold">HumanizerCo</span>
     </a>
     <div class="flex items-center gap-3 md:gap-5">
@@ -415,10 +438,10 @@
   <div class="text-center mb-7 md:mb-10">
     <div class="reveal flex justify-center mb-4"><span class="tag">✦ Free AI Humanizer</span></div>
     <h1 class="reveal display hero-headline font-bold text-4xl md:text-6xl leading-[1.04] mb-4 max-w-4xl mx-auto">
-      Your writing. <span class="display-italic" style="color:var(--accent)">No AI flags.</span> Free.
+      When everyone sounds like a bot,<br><span class="display-italic" style="color:var(--accent)">sound human.</span>
     </h1>
     <p class="reveal text-base md:text-lg max-w-xl mx-auto leading-relaxed" style="color:var(--fg-muted)">
-      Paste any AI-generated text — get back writing that sounds genuinely, unmistakably <em class="display-italic" style="color:var(--fg-soft)">you</em>.
+      Paste your AI draft below. Get back writing that's 100% undetectable — and unmistakably yours.
     </p>
   </div>
 
@@ -525,6 +548,12 @@
 
       <div id="outputText" class="output-content"></div>
 
+      <!-- Loading state (shown during API call) -->
+      <div id="loadingState" style="display:none;padding:12px 0">
+        <div class="loading-bar-track"><div id="loadingBarFill" class="loading-bar-fill"></div></div>
+        <p id="loadingLabel" class="loading-label">Analyzing AI patterns_</p>
+      </div>
+
       <!-- Detector result (visible in detector mode) -->
       <div id="detectorResult" class="detector-result">
         <div class="detector-meter">
@@ -553,14 +582,13 @@
       <div id="gate" style="display:none">
         <div class="gate-blur-strip"></div>
         <div class="gate-content">
-          <div class="inline-flex items-center gap-2 mb-2 px-3 py-1 rounded-full text-xs font-semibold" style="background:var(--accent-dim);color:var(--accent)">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4-6.2-4.6-6.2 4.6 2.4-7.4L2 9.4h7.6z"/></svg>
-            Your rewrite is ready
+          <div class="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold" style="background:var(--accent-dim);color:var(--accent)">
+            ✦ Your rewrite is ready
           </div>
-          <p class="text-sm mb-4 max-w-sm mx-auto" style="color:var(--fg-soft)">See the full result and copy it. No credit card needed.</p>
+          <p class="text-sm mb-4 max-w-sm mx-auto" style="color:var(--fg-soft)">See the full result — free, no credit card.</p>
           <form id="gateForm" class="flex gap-2 max-w-md mx-auto">
             <input type="email" id="gateEmail" placeholder="you@email.com" required />
-            <button type="submit" class="btn-primary">See Result →</button>
+            <button type="submit" class="btn-primary">Unlock →</button>
           </form>
         </div>
       </div>
@@ -582,7 +610,11 @@
       <span><span class="font-semibold" style="color:var(--fg)">4.9</span> from 2,400+ users</span>
     </span>
     <span class="hidden md:inline" style="color:var(--fg-dim)">·</span>
-    <span>Works with GPTZero · Turnitin · Originality.ai</span>
+    <span>
+      <span style="color:var(--accent)">✓</span> GPTZero &nbsp;
+      <span style="color:var(--accent)">✓</span> Turnitin &nbsp;
+      <span style="color:var(--accent)">✓</span> Originality.ai
+    </span>
   </div>
 </div>
 
@@ -792,9 +824,15 @@
 <footer class="border-t hairline">
   <div class="max-w-7xl mx-auto px-6 md:px-8 py-10 flex flex-col md:flex-row md:items-center justify-between gap-5 text-sm" style="color:var(--fg-muted)">
     <div class="flex items-center gap-3">
-      <span class="inline-flex items-center justify-center w-7 h-7 rounded-md" style="background: linear-gradient(135deg, var(--accent), oklch(70% 0.14 50)); color: var(--accent-on);">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v13"/><path d="M9 21v-7a3 3 0 0 1 6 0v7"/></svg>
-      </span>
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <rect x="4" y="10" width="24" height="3" rx="1.5" fill="var(--accent)"/>
+        <rect x="13" y="13" width="6" height="7" rx="1" fill="var(--accent)" opacity="0.85"/>
+        <circle cx="7" cy="11.5" r="2" fill="var(--accent)" opacity="0.6"/>
+        <circle cx="25" cy="11.5" r="2" fill="var(--accent)" opacity="0.6"/>
+        <rect x="10" y="4" width="12" height="7" rx="1" fill="var(--accent)" opacity="0.25"/>
+        <line x1="12" y1="6" x2="20" y2="6" stroke="var(--accent)" stroke-width="1" opacity="0.5"/>
+        <line x1="12" y1="8" x2="18" y2="8" stroke="var(--accent)" stroke-width="1" opacity="0.5"/>
+      </svg>
       <span class="display font-bold text-base" style="color:var(--fg)">HumanizerCo</span>
     </div>
     <div class="flex flex-wrap gap-6">
@@ -984,32 +1022,43 @@
     aiScoreEl.textContent = score + '%';
   });
 
-  function typeIntoOutput(text, speed, blurAt, humanTarget) {
-    clearInterval(outputTimer);
+  function typeIntoOutput(text, _speed, blurAt, humanTarget) {
+    if (outputTimer) { clearTimeout(outputTimer); outputTimer = null; }
     outputArea.textContent = '';
     outputArea.classList.add('typing-cursor');
     copyBtn.style.display = 'none';
-    let i = 0;
     const blurIndex = Math.floor(text.length * blurAt);
-    const visible = signedUp ? text : text.slice(0, blurIndex);
-    outputTimer = setInterval(() => {
-      outputArea.textContent += text[i++];
-      const progress = i / text.length;
-      if (humanScoreEl && typeof humanTarget === 'number') {
-        humanScoreEl.textContent = Math.round(humanTarget * progress) + '%';
-      }
-      if (i >= visible.length) {
-        clearInterval(outputTimer);
-        outputArea.classList.remove('typing-cursor');
-        if (!signedUp) {
-          setTimeout(() => { gateEl.style.display = 'block'; }, 200);
-        } else {
-          // Already signed up — show copy button
-          copyBtn.style.display = 'inline-flex';
+    const stopAt = signedUp ? text.length : blurIndex;
+
+    function scheduleChar(i) {
+      const prevChar = i > 0 ? text[i - 1] : '';
+      const isSentenceEnd = '.!?'.includes(prevChar);
+      const isPunct = ',;:'.includes(prevChar);
+      let delay = 15 + Math.random() * 25;
+      if (isPunct) delay += 60 + Math.random() * 60;
+      if (isSentenceEnd) delay += 80 + Math.random() * 100;
+      outputTimer = setTimeout(() => {
+        outputArea.textContent += text[i];
+        const progress = (i + 1) / text.length;
+        if (humanScoreEl && typeof humanTarget === 'number') {
+          humanScoreEl.textContent = Math.round(humanTarget * progress) + '%';
         }
-        humanBadge.style.opacity = '1';
-      }
-    }, speed);
+        if (i + 1 < stopAt) {
+          scheduleChar(i + 1);
+        } else {
+          outputTimer = null;
+          outputArea.classList.remove('typing-cursor');
+          if (!signedUp) {
+            setTimeout(() => { gateEl.style.display = 'block'; }, 200);
+          } else {
+            copyBtn.style.display = 'inline-flex';
+          }
+          humanBadge.style.opacity = '1';
+        }
+      }, delay);
+    }
+
+    if (text.length > 0) scheduleChar(0);
   }
 
   // ===== INTERACTIONS =====
@@ -1030,6 +1079,11 @@
     const targetAI = samples[key].aiScore;
     typeIntoTextarea(samples[key].input, 6, () => {
       btn.classList.remove('pulse'); void btn.offsetWidth; btn.classList.add('pulse');
+      setTimeout(() => {
+        if (currentMode === 'humanize' && !outputArea.textContent.trim()) {
+          btn.click();
+        }
+      }, 1200);
     }, (progress) => {
       aiScoreEl.textContent = Math.round(targetAI * progress) + '%';
     });
@@ -1262,6 +1316,19 @@
     }
   }
 
+  const loadingPhrases = [
+    'Analyzing AI patterns_',
+    'Removing tells_',
+    'Adjusting sentence rhythm_',
+    'Adding human variation_',
+    'Almost done_',
+  ];
+  let loadingPhraseIdx = 0;
+  let loadingPhraseTimer = null;
+  const loadingStateEl = document.getElementById('loadingState');
+  const loadingBarFill = document.getElementById('loadingBarFill');
+  const loadingLabelEl = document.getElementById('loadingLabel');
+
   function setLoading(loading, label) {
     isLoading = loading;
     btn.disabled = loading;
@@ -1269,6 +1336,32 @@
     btn.style.cursor = loading ? 'wait' : '';
     if (loading && label) humanizeBtnLabel.textContent = label;
     else humanizeBtnLabel.textContent = currentMode === 'detect' ? 'Check for AI' : 'Humanize Text';
+
+    if (loading) {
+      outputArea.style.display = 'none';
+      loadingStateEl.style.display = 'block';
+      // Reset and kick off progress bar
+      loadingBarFill.style.transition = 'none';
+      loadingBarFill.style.width = '0';
+      void loadingBarFill.offsetWidth;
+      loadingBarFill.style.transition = 'width 8s ease-out';
+      loadingBarFill.style.width = '85%';
+      // Cycle phrases
+      loadingPhraseIdx = 0;
+      loadingLabelEl.textContent = loadingPhrases[0];
+      loadingPhraseTimer = setInterval(() => {
+        loadingPhraseIdx = (loadingPhraseIdx + 1) % loadingPhrases.length;
+        loadingLabelEl.textContent = loadingPhrases[loadingPhraseIdx];
+      }, 2000);
+    } else {
+      clearInterval(loadingPhraseTimer);
+      loadingBarFill.style.transition = 'width 200ms ease';
+      loadingBarFill.style.width = '100%';
+      setTimeout(() => {
+        loadingStateEl.style.display = 'none';
+        outputArea.style.display = '';
+      }, 200);
+    }
   }
 
   // Gate form submit
@@ -1276,9 +1369,9 @@
     e.preventDefault();
     const email = document.getElementById('gateEmail').value;
     if (!email) return;
-    try { localStorage.setItem('humanizerco_email', email); } catch (e) {}
     signedUp = true;
-    gateEl.style.transition = 'opacity 400ms ease';
+    try { localStorage.setItem('humanizerco_email', email); } catch (_) {}
+    gateEl.style.transition = 'opacity 300ms ease';
     gateEl.style.opacity = '0';
     setTimeout(() => {
       gateEl.style.display = 'none';
@@ -1296,7 +1389,7 @@
           showToast();
         }
       }, 12);
-    }, 400);
+    }, 300);
   });
 
   function showToast() {
@@ -1334,6 +1427,15 @@
 
   // ===== REVEAL ON LOAD =====
   window.addEventListener('load', () => {
+    // Return-visitor email pre-fill
+    try {
+      const saved = localStorage.getItem('humanizerco_email');
+      if (saved) {
+        document.querySelectorAll('input[type="email"]').forEach(el => { el.value = saved; });
+        signedUp = true;
+      }
+    } catch (_) {}
+
     document.querySelectorAll('.reveal').forEach((el, i) => {
       setTimeout(() => el.classList.add('in'), 80 + i * 90);
     });
