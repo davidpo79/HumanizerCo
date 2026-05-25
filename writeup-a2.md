@@ -40,7 +40,7 @@ The control blurs the output at 65% of the text and asks for an email to see the
 
 **Hypothesis:** Email-only registration creates a typing and trust barrier. Users who have Gmail or Apple ID already open on their device will convert faster with one-click OAuth than with a form they have to fill out. Reducing the mechanical friction of registration should lift signup rate among mobile users especially, where typing an email address is noticeably worse.
 
-**What changes:** The gate overlay gains two OAuth buttons above the email field: "Continue with Google" and "Continue with Apple." The email form remains as a fallback below an "OR" divider. The blur gate triggers at the same 65% point as the control. Note: the OAuth buttons are UI placeholders in this build and are not connected to real Google or Apple authentication.
+**What changes:** The sample pills and the overall page structure stay identical to the control. The gate overlay gains two OAuth buttons above the email field: "Continue with Google" and "Continue with Apple." The email form remains as a fallback below an "OR" divider. The blur gate triggers at the same 65% point as the control. Note: the OAuth buttons are UI placeholders in this build and are not connected to real Google or Apple authentication.
 
 **Why it might win:** One tap versus typing an email address. On mobile, where the majority of cold traffic lands, the difference in friction is significant. OAuth also tends to produce higher-quality email addresses (real inboxes rather than disposable accounts), which matters for any downstream email sequence.
 
