@@ -1314,6 +1314,10 @@
   }
 
   // ===== ELEMENTS =====
+  // Always land at the top of the page — disable browser scroll restoration
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
+
   const inputArea = document.getElementById('inputArea');
   const outputArea = document.getElementById('outputText');
   const btn = document.getElementById('humanizeBtn');
