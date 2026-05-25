@@ -10,7 +10,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=DM+Sans:wght@400;500;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg:          oklch(14% 0.012 60);
@@ -29,7 +29,7 @@
     --success-dim: oklch(30% 0.080 145 / 0.35);
     --border:      oklch(28% 0.014 60 / 0.7);
     --border-soft: oklch(24% 0.014 60 / 0.5);
-    --font-mono:   'Special Elite', 'Courier New', monospace;
+    --font-mono:   'IBM Plex Mono', 'Courier New', monospace;
     --detect:      oklch(63% 0.08 150);
     --detect-hi:   oklch(68% 0.08 150);
     --detect-dim:  oklch(25% 0.05 150 / 0.35);
@@ -114,7 +114,7 @@
     transition: border-color 160ms ease, box-shadow 160ms ease;
   }
   textarea {
-    font-family: 'Special Elite', 'Courier New', monospace !important; font-size: 15px !important; line-height: 1.8; letter-spacing: 0.01em;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace !important; font-size: 14.5px !important; line-height: 1.7; letter-spacing: 0;
     background-image: repeating-linear-gradient(
       to bottom,
       transparent 0,
@@ -132,9 +132,9 @@
 
   /* Output text styling */
   .output-content {
-    font-family: 'Special Elite', 'Courier New', monospace !important;
-    font-size: 15px !important; line-height: 1.8; color: var(--fg);
-    min-height: 240px; padding: 4px 2px; letter-spacing: 0.01em;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace !important;
+    font-size: 14.5px !important; line-height: 1.7; color: var(--fg);
+    min-height: 240px; padding: 4px 2px; letter-spacing: 0;
   }
   .output-content p { margin-bottom: 12px; }
 
@@ -160,8 +160,8 @@
   .typing-cursor::after {
     content: "_";
     color: var(--accent);
-    font-family: 'Special Elite', 'Courier New', monospace !important;
-    font-size: 15px;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace !important;
+    font-size: 14.5px;
     animation: blink 0.6s steps(1, end) infinite;
     margin-left: 1px;
   }
@@ -528,7 +528,7 @@
     font-size: 13px;
   }
   .trust-badge-num {
-    font-family: 'Special Elite', 'Courier New', monospace;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
     font-size: 15px; font-weight: 400;
     color: var(--fg);
     letter-spacing: 0.02em;
@@ -1031,15 +1031,15 @@
         </div>
         <div class="flex items-center gap-3 flex-shrink-0">
           <div class="text-center px-5 py-3 rounded-xl" style="background:var(--bg-card);border:1px solid var(--border)">
-            <span style="font-family:'Special Elite','Courier New',monospace;font-size:22px;color:var(--accent)">$5</span>
+            <span style="font-family:'IBM Plex Mono','Courier New',monospace;font-size:22px;color:var(--accent)">$5</span>
             <p class="text-xs mt-0.5" style="color:var(--fg-muted)">for</p>
-            <span style="font-family:'Special Elite','Courier New',monospace;font-size:16px;color:var(--fg)">50k words</span>
+            <span style="font-family:'IBM Plex Mono','Courier New',monospace;font-size:16px;color:var(--fg)">50k words</span>
           </div>
           <div style="color:var(--fg-dim);font-size:18px">·</div>
           <div class="text-center px-5 py-3 rounded-xl" style="background:var(--bg-card);border:1px solid var(--border)">
-            <span style="font-family:'Special Elite','Courier New',monospace;font-size:22px;color:var(--accent)">$18</span>
+            <span style="font-family:'IBM Plex Mono','Courier New',monospace;font-size:22px;color:var(--accent)">$18</span>
             <p class="text-xs mt-0.5" style="color:var(--fg-muted)">for</p>
-            <span style="font-family:'Special Elite','Courier New',monospace;font-size:16px;color:var(--fg)">200k words</span>
+            <span style="font-family:'IBM Plex Mono','Courier New',monospace;font-size:16px;color:var(--fg)">200k words</span>
           </div>
         </div>
       </div>
