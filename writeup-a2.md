@@ -48,6 +48,18 @@ The control blurs the output at 65% of the text and asks for an email to see the
 
 ---
 
+## Quick comparison
+
+| | Control | A | B | C |
+|---|---|---|---|---|
+| Sample pills | ✅ | ❌ | ✅ | ✅ |
+| Auto-start on load | ❌ | ✅ | ❌ | ❌ |
+| Blur gate at 65% | ✅ | ❌ | ❌ | ✅ |
+| Copy gates signup | ✅ | ✅ | ✅ | ✅ |
+| OAuth buttons | ❌ | ❌ | ❌ | ✅ |
+
+---
+
 ## Which one I'd run first
 
 Test 2 (Full Value Exposure) is the highest-leverage change and I'd run it first. Gate placement affects every visitor who makes it to the end of the demo, and the blur-at-65% decision is the most likely assumption to be wrong. If the result is positive, it changes how we think about gating on every future page we build.
