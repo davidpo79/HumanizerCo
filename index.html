@@ -440,32 +440,7 @@
     z-index: 2;
   }
 
-  /* Responsive */
-  @media (max-width: 767px) {
-    .hero-headline { font-size: 38px !important; line-height: 1.05 !important; }
-    .demo-grid {
-      display: grid !important;
-      grid-template-columns: 1fr !important;
-      gap: 12px !important;
-    }
-    /* On mobile: hide the animated track, keep only the chip as a static flex child */
-    .flow-arrow {
-      min-width: 0; height: 36px;
-      transform: none;
-    }
-    .flow-track { display: none; }
-    .flow-chip {
-      position: static;
-      transform: none;
-      width: 30px; height: 30px;
-    }
-    /* Rotate the arrow icon inside the chip to point downward */
-    .flow-chip svg { transform: rotate(90deg); }
-    .nav-cta-mobile { display: none; }
-    .hamburger { display: flex; }
-    .nav-mobile-menu.open { display: block; }
-  }
-  /* Hamburger button */
+  /* Hamburger button — base: hidden; shown only in mobile media query below */
   .hamburger {
     display: none;
     flex-direction: column; justify-content: center; align-items: center;
@@ -484,7 +459,7 @@
   .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
   .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
-  /* Mobile dropdown menu */
+  /* Mobile dropdown menu — base: hidden; opened via .open class */
   .nav-mobile-menu {
     display: none;
     position: absolute; top: 100%; left: 0; right: 0;
@@ -519,6 +494,22 @@
   }
   .nav-mobile-menu .menu-cta:hover { background: var(--accent-hi); }
 
+  /* Responsive — these rules come AFTER the base definitions so they win in cascade */
+  @media (max-width: 767px) {
+    .hero-headline { font-size: 38px !important; line-height: 1.05 !important; }
+    .demo-grid {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 12px !important;
+    }
+    .flow-arrow { min-width: 0; height: 36px; transform: none; }
+    .flow-track { display: none; }
+    .flow-chip { position: static; transform: none; width: 30px; height: 30px; }
+    .flow-chip svg { transform: rotate(90deg); }
+    .nav-cta-mobile { display: none; }
+    .hamburger { display: flex; }
+    .nav-mobile-menu.open { display: block; }
+  }
   @media (min-width: 768px) {
     .hamburger { display: none !important; }
     .nav-mobile-menu { display: none !important; }
