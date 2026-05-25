@@ -12,15 +12,15 @@ The control blurs the output at 65% of the text and asks for an email to see the
 
 ---
 
-## Test 1: Zero-Click Aha (variant-a.html)
+## Test 1: Zero-Click Full Exposure (variant-a.html)
 
-**Hypothesis:** Requiring the user to do anything, even click a sample pill, adds friction before the "aha moment." If the page auto-starts a humanization run on load, the visitor sees the product working before they've made a single decision.
+**Hypothesis:** Any user action before the aha moment is friction. The control asks the visitor to pick a sample pill and then see a partial result. If we auto-start the humanization on load and show the complete output upfront, the visitor gets full proof of value before making a single decision. The only thing that stays gated is the ability to copy.
 
-**What changes:** The sample pills are removed. On page load, after a short 1.1-second delay (enough for the page to feel settled), the page silently loads an Academic sample into the input and begins humanizing it. The output types itself out automatically. The blur gate appears at 65% exactly as the control does. The Copy button is hidden until signup.
+**What changes:** The sample pills are removed. On page load, after a short 1.1-second delay, the page silently loads an Academic sample into the input and begins humanizing it. The full output types itself out automatically with no blur gate. Once typing finishes, the Copy button appears. Clicking Copy opens the email signup modal. There is no other way to get the text out of the page.
 
-**Why it might win:** Cold visitors don't have to interpret the UI or choose a sample. The product is already running when they arrive. The aha moment is delivered, not promised.
+**Why it might win:** The visitor sees the complete rewrite before being asked for anything. By the time the Copy button is in front of them, they have already read the full output and decided it is good. The signup ask comes after value is confirmed, not before or during it.
 
-**Guardrail:** Auto-running without consent can feel intrusive. If bounce rate rises in the first 10 seconds, the auto-start is the cause. Time-on-page and scroll depth will tell us whether visitors are engaging or leaving.
+**Guardrail:** Auto-running without consent can feel intrusive. If bounce rate rises in the first 10 seconds, the auto-start is the cause. Time-on-page and scroll depth will tell us whether visitors are engaging with the output or just leaving.
 
 ---
 
