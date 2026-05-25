@@ -158,6 +158,21 @@
     padding: 28px 20px 20px;
     text-align: center;
   }
+  @media (max-width: 768px) {
+    .gate-blur-strip {
+      top: 0; height: 100%;
+      background: linear-gradient(to bottom,
+        oklch(19% 0.014 60 / 0.95) 0%,
+        oklch(19% 0.014 60 / 1) 25%);
+      border-radius: 14px;
+    }
+    .gate-content {
+      top: 0; bottom: 0;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 20px;
+    }
+  }
 
   /* Caret/cursor for typing effect */
   .typing-cursor::after {
