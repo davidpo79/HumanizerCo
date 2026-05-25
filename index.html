@@ -410,10 +410,69 @@
       transform: none;
       width: 30px; height: 30px;
     }
+    /* Rotate the arrow icon inside the chip to point downward */
+    .flow-chip svg { transform: rotate(90deg); }
     .nav-cta-mobile { display: none; }
+    .hamburger { display: flex; }
+    .nav-mobile-menu.open { display: block; }
   }
+  /* Hamburger button */
+  .hamburger {
+    display: none;
+    flex-direction: column; justify-content: center; align-items: center;
+    gap: 5px; width: 36px; height: 36px;
+    background: transparent; border: 1px solid var(--border);
+    border-radius: 8px; cursor: pointer;
+    transition: border-color 160ms ease, background 160ms ease;
+  }
+  .hamburger:hover { border-color: var(--accent); background: var(--accent-dim); }
+  .hamburger span {
+    display: block; width: 16px; height: 1.5px;
+    background: var(--fg-soft); border-radius: 999px;
+    transition: transform 220ms ease, opacity 220ms ease;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  /* Mobile dropdown menu */
+  .nav-mobile-menu {
+    display: none;
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: oklch(14% 0.012 60 / 0.97);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 0 16px;
+    z-index: 40;
+  }
+  .nav-mobile-menu a, .nav-mobile-menu button {
+    display: block; width: 100%;
+    padding: 13px 24px;
+    font-size: 15px; font-weight: 500; text-align: left;
+    color: var(--fg-soft); background: transparent; border: none;
+    cursor: pointer; text-decoration: none;
+    transition: color 140ms ease, background 140ms ease;
+  }
+  .nav-mobile-menu a:hover, .nav-mobile-menu button:hover {
+    color: var(--fg); background: var(--bg-elev);
+  }
+  .nav-mobile-menu .menu-divider {
+    height: 1px; background: var(--border); margin: 8px 16px;
+  }
+  .nav-mobile-menu .menu-cta {
+    margin: 10px 16px 0;
+    display: block; width: calc(100% - 32px);
+    padding: 13px 22px; text-align: center;
+    background: var(--accent); color: var(--accent-on);
+    font-weight: 600; border-radius: 10px; font-size: 14px;
+    border: none; cursor: pointer;
+    transition: background 160ms ease;
+  }
+  .nav-mobile-menu .menu-cta:hover { background: var(--accent-hi); }
+
   @media (min-width: 768px) {
-    .nav-tagline-mobile { display: none; }
+    .hamburger { display: none !important; }
+    .nav-mobile-menu { display: none !important; }
   }
 
   /* Subtle border accent line under nav */
@@ -451,7 +510,19 @@
       <a href="#pricing" class="hidden md:block text-sm hover:text-white transition-colors" style="color:var(--fg-muted)">Pricing</a>
       <a href="#" class="hidden md:block text-sm hover:text-white transition-colors" style="color:var(--fg-muted)">Sign in</a>
       <button onclick="scrollToDemo()" class="btn-primary nav-cta-mobile" style="padding:8px 16px;font-size:13px">Try Free</button>
+      <!-- Hamburger (mobile only) -->
+      <button id="hamburgerBtn" class="hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </div>
+  </div>
+  <!-- Mobile dropdown -->
+  <div id="mobileMenu" class="nav-mobile-menu" role="navigation" aria-label="Mobile menu">
+    <a href="#how" onclick="closeMobileMenu()">How it works</a>
+    <a href="#pricing" onclick="closeMobileMenu()">Pricing</a>
+    <div class="menu-divider"></div>
+    <a href="#" onclick="closeMobileMenu()">Sign in</a>
+    <button class="menu-cta" onclick="closeMobileMenu(); scrollToDemo();">Try Free</button>
   </div>
 </nav>
 
@@ -1443,6 +1514,26 @@
     setTimeout(() => inputArea.focus(), 700);
   }
   window.scrollToDemo = scrollToDemo;
+
+  // ===== HAMBURGER MENU =====
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  function closeMobileMenu() {
+    hamburgerBtn.classList.remove('open');
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    mobileMenu.classList.remove('open');
+  }
+  window.closeMobileMenu = closeMobileMenu;
+  hamburgerBtn.addEventListener('click', () => {
+    const isOpen = mobileMenu.classList.toggle('open');
+    hamburgerBtn.classList.toggle('open', isOpen);
+    hamburgerBtn.setAttribute('aria-expanded', String(isOpen));
+  });
+  // Close menu on scroll or outside click
+  window.addEventListener('scroll', closeMobileMenu, { passive: true });
+  document.addEventListener('click', (e) => {
+    if (!navEl.contains(e.target)) closeMobileMenu();
+  });
 
   // ===== LIVE COUNTER =====
   let counterVal = 47293;
