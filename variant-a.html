@@ -1778,7 +1778,8 @@
   });
   // Close menu on scroll or outside click
   window.addEventListener('scroll', closeMobileMenu, { passive: true });
-  document.addEventListener('click', (e) => {
+
+  const navEl = document.getElementById('nav');  document.addEventListener('click', (e) => {
     if (!navEl.contains(e.target)) closeMobileMenu();
   });
 
@@ -1791,7 +1792,6 @@
   }, 2400);
 
   // ===== NAV SCROLL =====
-  const navEl = document.getElementById('nav');
   window.addEventListener('scroll', () => {
     navEl.classList.toggle('scrolled', window.scrollY > 12);
   }, { passive: true });

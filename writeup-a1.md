@@ -20,6 +20,26 @@ Above the input panel there are four sample pills — Academic, Professional, Ca
 
 There's a live counter below the hero that ticks up in real time showing how many texts have been humanized that day. It's a small thing but it does real trust work without cluttering the layout.
 
+**Copy protection:** The output panel is protected from manual copying. `user-select: none` prevents text selection; a `contextmenu` listener blocks right-click; a `copy` event listener intercepts Ctrl+C and routes it through the Copy button. The Copy button itself always checks signup status — if the user hasn't registered, it shows the gate modal regardless of whether they're running a sample or their own text. Once signed up (email stored in localStorage), Copy works freely for the rest of the session.
+
+**Output reset:** Whenever the user types or pastes new text into the input area, the output panel resets immediately — the previous result clears, the gate hides, the Human Score badge resets to "—", and the Copy button hides. This prevents stale gate overlays from persisting across runs.
+
+## The "Ice vs. Fire" Semantic Color Discipline
+
+I deliberately rejected the category cliché of generic, neon-blue SaaS templates. Instead, the entire page operates on a strict, high-contrast psychological dichotomy: **Cold Digital Evasion vs. Warm Analog Craft.**
+
+**The Backdrop:** A deep, premium warm charcoal (`oklch(14% 0.01 60)`) that simulates a dimly lit writer's studio or a legacy publishing house, instantly separating us from cold, clinical tech platforms.
+
+**The "Cold AI" Semantics (Ice Blue):** To visually anchor the user's active anxiety, all elements related to the machine, scanning, and AI detection are strictly isolated in a frosty, glowing Ice Blue (`oklch(75% 0.15 250)`).
+- When a user runs a scan, the system flags the text with a `❄️ Cold AI Bot` badge showing the AI percentage score.
+- The prominent threat indicators — the massive AI Probability headline and the dynamic detector progress bars (GPTZero, Turnitin) — are rendered entirely in this freezing cyan. This visually solidifies the problem: *your text is currently frozen in robotic neutrality.*
+
+**The "Warm Human" Semantics (Amber Gold):** The primary brand accent is a rich Amber Gold (`oklch(78% 0.14 75)`), representing human warmth, organic texture, and the mechanical authority of a vintage typewriter.
+- The final output is stamped with a `🔥 Warm Human Tone` badge showing the Human percentage score.
+- Core interactive elements — the sample pills, the "Humanize Text" button, and the CTA cards — glow in this welcoming amber.
+
+**The Conversion Loop:** This visual tension creates an immediate, subconscious UX narrative. The user is trapped in an "Ice" state of technical rejection (blue detector results) and is presented with exactly *one* visible escape route: the glowing, warm Amber button. The design itself forces the transition from cold code to human warmth, driving a visceral urge to click and unlock the full result.
+
 ## Design choices
 
 The visual direction was deliberately not "AI startup." Every tool in this category uses cold blues, purple gradients, and the same dark-mode SaaS template. I went with warm charcoal as the base and amber gold as the single accent color. The combination reads more like an editorial brand or a craft tool than an AI product, which felt right for something whose whole value proposition is making text sound more human.
@@ -51,9 +71,32 @@ What it's built with:
 - **HTML5** for the markup, semantic where it matters (sections, articles, figures for testimonials).
 - **CSS** written directly in the head, using modern features: CSS custom properties for the theme tokens, OKLCH for all colors (better perceptual uniformity than HSL), `backdrop-filter` for the blur gate, and CSS animations for the typing cursor and the gate reveal. No preprocessor.
 - **Tailwind CSS** pulled in via CDN for layout and spacing utilities. Used alongside the custom CSS, not instead of it. This keeps the file small and avoids a build pipeline.
-- **Vanilla JavaScript** for everything interactive: the typing state machine, the sample pills, the live counter, the gate logic, and the form handling. No React, no jQuery, nothing. About 120 lines of JS in total.
+- **Vanilla JavaScript** for everything interactive: the typing state machine, the sample pills, the live counter, the gate logic, copy protection, and form handling. No React, no jQuery, nothing.
 - **Google Fonts** for typography (Fraunces and DM Sans), loaded with `preconnect` for faster paint.
 
-The humanization itself is simulated for the demo. Each sample pill has a hardcoded "before" and "after" pair, and the output panel types out the after text character by character. In production this would be a call to a backend API, but for this assignment the simulation is what makes the page work as a standalone file you can drop anywhere.
+The humanization itself is simulated for the demo. Each sample pill has a hardcoded "before" and "after" pair, and the output panel types out the after text character by character.
 
-**Hosting**: The page is deployed on **Railway**. Static-site deploy, no server runtime needed, automatic HTTPS, and the build process is essentially "serve this HTML file." Total cold-start time is effectively zero because there's nothing to start.
+**Production API — Gemini 2.5 Flash:** In a live product, the simulated output would be replaced by a call to **Google Gemini 2.5 Flash** (`gemini-2.5-flash-preview-05-20`). The request flow:
+
+```
+POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent
+Authorization: Bearer {GEMINI_API_KEY}
+Content-Type: application/json
+
+{
+  "contents": [{
+    "parts": [{
+      "text": "Rewrite the following text so it reads as naturally human-written, avoiding AI detection patterns. Preserve the original meaning and approximate length. Return only the rewritten text.\n\n{user_input}"
+    }]
+  }],
+  "generationConfig": {
+    "temperature": 1.0,
+    "topP": 0.95,
+    "maxOutputTokens": 2048
+  }
+}
+```
+
+Gemini 2.5 Flash was chosen for this role because of its sub-second median latency (critical for the live-typing illusion), its 1M-token context window (handles any realistic paste), and its cost profile relative to GPT-4o for high-volume consumer traffic. The response streams via SSE, and the client-side typing state machine consumes the stream token by token to maintain the same character-by-character animation the demo already uses.
+
+**Hosting**: The page is deployed on **Railway**. Static-site deploy, automatic HTTPS, and the build process is essentially "serve this HTML file." Total cold-start time is effectively zero because there's nothing to start.
