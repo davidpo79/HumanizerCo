@@ -1353,6 +1353,15 @@
   inputArea.addEventListener('input', () => {
     if (isProgrammaticInput) return;
     currentSample = null;
+    // Reset output panel for new input
+    if (outputTimer) { clearTimeout(outputTimer); outputTimer = null; }
+    outputArea.textContent = '';
+    outputArea.classList.remove('typing-cursor');
+    humanScoreEl.textContent = '—';
+    humanBadge.style.opacity = '0.5';
+    if (gateEl) gateEl.style.display = 'none';
+    if (copyBtn) copyBtn.style.display = 'none';
+    lastHumanizedText = '';
     pills.forEach(p => p.classList.remove('active'));
     const txt = inputArea.value.trim();
     if (!txt) { aiScoreEl.textContent = '—'; return; }
