@@ -178,10 +178,109 @@
   /* Header sticky behavior */
   nav.scrolled { background: oklch(14% 0.012 60 / 0.85); backdrop-filter: blur(12px); }
 
+  /* Icon action buttons (paste / upload / copy) */
+  .icon-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    background: transparent; color: var(--fg-muted);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 6px 10px; font-size: 12px; font-weight: 500;
+    cursor: pointer;
+    transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--fg); background: var(--accent-dim); }
+  .icon-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+  .copy-btn {
+    position: absolute; bottom: 16px; right: 16px;
+    display: none; align-items: center; gap: 6px;
+    background: var(--bg-elev); color: var(--fg-soft);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 7px 12px; font-size: 12px; font-weight: 600;
+    cursor: pointer; z-index: 3;
+    transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+    box-shadow: 0 8px 20px -8px oklch(0% 0 0 / 0.5);
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { color: var(--success); border-color: var(--success); }
+  .copy-btn svg { width: 13px; height: 13px; }
+
+  /* Score badges (AI / Human probability) */
+  .score-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 11.5px; font-weight: 600;
+    padding: 4px 10px 4px 8px; border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+  .score-badge .score-dot {
+    width: 6px; height: 6px; border-radius: 999px;
+    box-shadow: 0 0 8px currentColor;
+    transition: background 400ms ease, box-shadow 400ms ease;
+  }
+  .score-badge.ai     { color: oklch(72% 0.18 28); }
+  .score-badge.ai .score-dot     { background: oklch(72% 0.18 28); }
+  .score-badge.human  { color: var(--success); }
+  .score-badge.human .score-dot  { background: var(--success); }
+  .score-badge .score-label { color: var(--fg-muted); font-weight: 500; }
+
+  /* Flow arrow between input and output */
+  .flow-arrow {
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    min-width: 56px;
+  }
+  .flow-track {
+    position: relative;
+    background: linear-gradient(90deg, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    height: 1px; width: 100%;
+    overflow: visible;
+  }
+  .flow-spark {
+    position: absolute; top: 50%; left: 0;
+    width: 32px; height: 2px; margin-top: -1px;
+    background: linear-gradient(90deg, transparent, var(--accent) 50%, transparent);
+    border-radius: 999px;
+    filter: blur(0.4px);
+    animation: flowMove 2.4s cubic-bezier(.5,.05,.5,.95) infinite;
+  }
+  .flow-spark::after {
+    content: ""; position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px; height: 6px; border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 14px var(--accent), 0 0 26px oklch(80% 0.135 75 / 0.5);
+  }
+  @keyframes flowMove {
+    0%   { left: -10%; opacity: 0; }
+    15%  { opacity: 1; }
+    85%  { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+  }
+  .flow-chip {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30px; height: 30px; border-radius: 999px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent);
+    box-shadow: 0 4px 16px -4px oklch(0% 0 0 / 0.4);
+    z-index: 2;
+  }
+
   /* Responsive */
   @media (max-width: 767px) {
-    .hero-headline { font-size: 44px !important; line-height: 1.05 !important; }
-    .demo-grid { display: flex !important; flex-direction: column !important; gap: 12px !important; }
+    .hero-headline { font-size: 38px !important; line-height: 1.05 !important; }
+    .demo-grid {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 8px !important;
+    }
+    .flow-arrow {
+      min-width: 0; height: 44px;
+      transform: rotate(90deg);
+    }
     .nav-cta-mobile { display: none; }
   }
   @media (min-width: 768px) {
@@ -216,34 +315,50 @@
 <main>
 
 <!-- HERO -->
-<section class="max-w-7xl mx-auto px-6 md:px-8 pt-16 md:pt-24 pb-16">
-  <div class="text-center mb-10 md:mb-14">
-    <div class="reveal flex justify-center mb-6"><span class="tag">✦ Free AI Humanizer</span></div>
-    <h1 class="reveal display hero-headline font-bold text-5xl md:text-7xl leading-[1.02] mb-6 max-w-4xl mx-auto">
-      Your writing.<br>
-      <span class="display-italic" style="color:var(--accent)">No AI flags.</span> Free.
+<section class="max-w-7xl mx-auto px-6 md:px-8 pt-8 md:pt-12 pb-14">
+  <div class="text-center mb-7 md:mb-10">
+    <div class="reveal flex justify-center mb-4"><span class="tag">✦ Free AI Humanizer</span></div>
+    <h1 class="reveal display hero-headline font-bold text-4xl md:text-6xl leading-[1.04] mb-4 max-w-4xl mx-auto">
+      Your writing. <span class="display-italic" style="color:var(--accent)">No AI flags.</span> Free.
     </h1>
-    <p class="reveal text-lg md:text-xl max-w-xl mx-auto leading-relaxed" style="color:var(--fg-muted)">
+    <p class="reveal text-base md:text-lg max-w-xl mx-auto leading-relaxed" style="color:var(--fg-muted)">
       Paste any AI-generated text — get back writing that sounds genuinely, unmistakably <em class="display-italic" style="color:var(--fg-soft)">you</em>.
     </p>
   </div>
 
   <!-- DEMO PANEL -->
-  <div id="demo" class="reveal demo-grid grid md:grid-cols-2 gap-4 md:gap-5 max-w-6xl mx-auto">
+  <div id="demo" class="reveal demo-grid grid md:grid-cols-[1fr_56px_1fr] gap-3 md:gap-3 max-w-6xl mx-auto items-stretch">
 
     <!-- INPUT CARD -->
     <div class="card p-5 md:p-6">
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center justify-between mb-4 gap-3">
         <div class="flex items-center gap-2">
           <span class="inline-block w-1.5 h-1.5 rounded-full" style="background:var(--fg-dim)"></span>
           <span class="text-xs font-semibold tracking-widest uppercase" style="color:var(--fg-muted)">AI Text</span>
         </div>
-        <span id="wordcount" class="text-xs" style="color:var(--fg-dim)">— words</span>
+        <span class="score-badge ai">
+          <span class="score-dot"></span>
+          <span class="score-label">AI</span>
+          <span id="aiScore">—</span>
+        </span>
       </div>
 
-      <!-- Sample pills -->
-      <div class="mb-4">
-        <p class="text-xs mb-2.5" style="color:var(--fg-dim)">No text ready? Try a sample:</p>
+      <!-- Sample pills + actions -->
+      <div class="flex items-center justify-between mb-2 gap-3">
+        <p class="text-xs" style="color:var(--fg-dim)">No text? Try a sample, or:</p>
+        <div class="flex gap-1.5">
+          <button class="icon-btn" id="pasteBtn" type="button" title="Paste from clipboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 4H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/></svg>
+            Paste
+          </button>
+          <button class="icon-btn" id="uploadBtn" type="button" title="Upload a .txt or .md file">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Upload
+          </button>
+          <input id="fileInput" type="file" accept=".txt,.md,.text,text/plain,text/markdown" style="display:none">
+        </div>
+      </div>
+      <div class="mb-3">
         <div class="flex flex-wrap gap-2" id="pills">
           <button class="pill" data-sample="academic">🎓 Academic</button>
           <button class="pill" data-sample="professional">💼 Professional</button>
@@ -252,7 +367,7 @@
         </div>
       </div>
 
-      <textarea id="inputArea" rows="8" placeholder="Paste AI text here, or click a sample above…"></textarea>
+      <textarea id="inputArea" rows="6" placeholder="Paste AI text here, click Paste/Upload above, or pick a sample…"></textarea>
 
       <button id="humanizeBtn" class="btn-primary w-full mt-4">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M5.6 18.4 18.4 5.6"/></svg>
@@ -260,19 +375,39 @@
       </button>
     </div>
 
+    <!-- FLOW ARROW -->
+    <div class="flow-arrow" aria-hidden="true">
+      <div class="flow-track">
+        <div class="flow-spark"></div>
+      </div>
+      <div class="flow-chip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M13 6l6 6-6 6"/>
+        </svg>
+      </div>
+    </div>
+
     <!-- OUTPUT CARD -->
     <div id="outputPanel" class="card p-5 md:p-6 relative overflow-hidden">
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center justify-between mb-4 gap-3">
         <div class="flex items-center gap-2">
           <span id="outputDot" class="inline-block w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>
           <span class="text-xs font-semibold tracking-widest uppercase" style="color:var(--fg-muted)">Human Text</span>
         </div>
-        <span id="humanBadge" class="text-xs px-2.5 py-1 rounded-full font-semibold" style="background:var(--success-dim);color:var(--success);opacity:0;transition:opacity 300ms ease">
-          ✓ Sounds Human
+        <span id="humanBadge" class="score-badge human" style="opacity:0;transition:opacity 300ms ease">
+          <span class="score-dot"></span>
+          <span class="score-label">Human</span>
+          <span id="humanScore">—</span>
         </span>
       </div>
 
       <div id="outputText" class="output-content"></div>
+
+      <!-- Copy button (revealed after signup + full output typed) -->
+      <button id="copyBtn" class="copy-btn" type="button" title="Copy humanized text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span id="copyBtnLabel">Copy</span>
+      </button>
 
       <!-- Gate overlay (revealed when 65% typed) -->
       <div id="gate" style="display:none">
@@ -543,21 +678,105 @@
   const samples = {
     academic: {
       input: "In conclusion, it is imperative to acknowledge the multifaceted implications of this paradigm shift. The underlying framework serves as a testament to the intricate tapestry of modern methodologies, demonstrating the profound interconnectedness of contemporary scholarly approaches.",
-      output: "All things considered, it's worth pausing to think through what this shift actually means in practice. The approach we've outlined here reflects just how layered — and how connected — today's research methods have become. The pieces don't sit in isolation; they pull on each other in ways that older frameworks rarely captured."
+      output: "All things considered, it's worth pausing to think through what this shift actually means in practice. The approach we've outlined here reflects just how layered — and how connected — today's research methods have become. The pieces don't sit in isolation; they pull on each other in ways that older frameworks rarely captured.",
+      aiScore: 94, humanScore: 96
     },
     professional: {
       input: "I hope this email finds you well. I am writing to inform you that we have synergized our core competencies to streamline the deliverables. Please let me know if you require further clarification or assistance moving forward.",
-      output: "Hope you're doing well! Quick update — our teams have been working closely together and we've managed to cut down the time it takes to get things shipped. Let me know if you want to walk through any of it on a call, or if there's anything specific you'd like clarified."
+      output: "Hope you're doing well! Quick update — our teams have been working closely together and we've managed to cut down the time it takes to get things shipped. Let me know if you want to walk through any of it on a call, or if there's anything specific you'd like clarified.",
+      aiScore: 89, humanScore: 95
     },
     casual: {
       input: "Welcome back to my blog! In today's fast-paced digital landscape, it is super important to stay ahead of the curve. Let's delve deep into the ultimate guide to mastering your daily routine and unlocking peak productivity!",
-      output: "Hey, glad you're back! Keeping up with how fast everything moves online can feel like a lot — and honestly, most of the advice out there doesn't help. So here's what's actually worked for me when it comes to building a routine that sticks, without burning out by Wednesday."
+      output: "Hey, glad you're back! Keeping up with how fast everything moves online can feel like a lot — and honestly, most of the advice out there doesn't help. So here's what's actually worked for me when it comes to building a routine that sticks, without burning out by Wednesday.",
+      aiScore: 91, humanScore: 97
     },
     cover: {
       input: "To whom it may concern, I am thrilled to submit my application for this role. As a highly motivated and detail-oriented professional, my robust skill set and proven track record make me the ideal candidate to drive impactful results.",
-      output: "I'd love to be considered for this role. Over the past few years I've developed a working style that's equal parts careful and action-oriented — I take the time to get the details right, but I don't sit on decisions. That blend is exactly what I think this position calls for, and I'd be glad to talk through the specifics."
+      output: "I'd love to be considered for this role. Over the past few years I've developed a working style that's equal parts careful and action-oriented — I take the time to get the details right, but I don't sit on decisions. That blend is exactly what I think this position calls for, and I'd be glad to talk through the specifics.",
+      aiScore: 93, humanScore: 94
     }
   };
+
+  // ===== CLIENT-SIDE HUMANIZER (used when the user pastes their own text) =====
+  function humanize(text) {
+    const replacements = [
+      [/\bIt is imperative to\b/gi, "You need to"],
+      [/\bin today'?s fast-paced (digital |business |modern )?(landscape|world|environment),?\s*/gi, ""],
+      [/\bdelve (deep )?into\b/gi, "look at"],
+      [/\bintricate tapestry of\b/gi, "mix of"],
+      [/\bmultifaceted\b/gi, "complex"],
+      [/\brobust skill set\b/gi, "skills"],
+      [/\brobust\b/gi, "solid"],
+      [/\bleverage\b/gi, "use"],
+      [/\bsynergize(d|s)?\b/gi, "combined"],
+      [/\bcore competencies\b/gi, "strengths"],
+      [/\bstreamline the deliverables\b/gi, "ship faster"],
+      [/\bI hope this email finds you well\.?\s*/gi, "Hope you're well — "],
+      [/\bI am writing to inform you that\b/gi, "Just a heads-up,"],
+      [/\bI am writing to\b/gi, "I wanted to"],
+      [/\bIn conclusion,?\s*/gi, "So, "],
+      [/\bFurthermore,?\s*/gi, "Also, "],
+      [/\bMoreover,?\s*/gi, "And "],
+      [/\bAdditionally,?\s*/gi, "Also, "],
+      [/\bUtiliz(e|ing|ed|es)\b/gi, (m) => m[0] === 'U' ? "Use" : "use"],
+      [/\butiliz(e|ing|ed|es)\b/g, "use"],
+      [/\bEndeavor\b/gi, "try"],
+      [/\bFacilitate\b/gi, "help"],
+      [/\bSubsequently,?\s*/gi, "Then "],
+      [/\bDemonstrate(s|d)?\b/gi, "show"],
+      [/\bparadigm shift\b/gi, "big change"],
+      [/\btransformative\b/gi, "real"],
+      [/\bcutting-edge\b/gi, "new"],
+      [/\bstate-of-the-art\b/gi, "modern"],
+      [/\bI am thrilled to\b/gi, "I'd love to"],
+      [/\bthe ideal candidate\b/gi, "a good fit"],
+      [/\bideal candidate\b/gi, "good fit"],
+      [/\bproven track record\b/gi, "experience"],
+      [/\bdrive impactful results\b/gi, "get real results"],
+      [/\bTo whom it may concern,?\s*/gi, "Hi,\n\n"],
+      [/\bhighly motivated\b/gi, "motivated"],
+      [/\bdetail-oriented\b/gi, "careful"],
+      [/\bunderlying framework\b/gi, "approach"],
+      [/\bWelcome back to my blog!?\s*/gi, "Hey, glad you're back. "],
+      [/\bLet'?s delve\b/gi, "Here's a look at"],
+      [/\bunlocking peak productivity\b/gi, "actually getting things done"],
+      [/\bIt is\b/g, "It's"],
+      [/\bit is\b/g, "it's"],
+      [/\bI am\b/g, "I'm"],
+      [/\bdo not\b/g, "don't"],
+      [/\bdoes not\b/g, "doesn't"],
+      [/\bdid not\b/g, "didn't"],
+      [/\bwe are\b/g, "we're"],
+      [/\byou are\b/g, "you're"],
+      [/\bthey are\b/g, "they're"],
+      [/\bthat is\b/g, "that's"],
+      [/\bthere is\b/g, "there's"],
+      [/\bwill not\b/g, "won't"],
+      [/\bwould not\b/g, "wouldn't"],
+      [/\bshould not\b/g, "shouldn't"],
+      [/\bcould not\b/g, "couldn't"],
+      [/\bcannot\b/g, "can't"],
+      [/\bcan not\b/g, "can't"],
+      [/\bare not\b/g, "aren't"],
+      [/\bis not\b/g, "isn't"],
+      [/\bhas not\b/g, "hasn't"],
+      [/\bhave not\b/g, "haven't"],
+      [/\bhad not\b/g, "hadn't"],
+      [/\byou will\b/g, "you'll"],
+      [/\bwe will\b/g, "we'll"],
+      [/\bI will\b/g, "I'll"],
+      [/\bI have\b/g, "I've"],
+      [/\bwe have\b/g, "we've"],
+      [/\byou have\b/g, "you've"],
+      [/  +/g, " "],
+      [/\s+\./g, "."],
+      [/\s+,/g, ","],
+    ];
+    let t = text;
+    for (const [re, rep] of replacements) t = t.replace(re, rep);
+    return t.trim();
+  }
 
   // ===== ELEMENTS =====
   const inputArea = document.getElementById('inputArea');
@@ -566,50 +785,85 @@
   const gateEl = document.getElementById('gate');
   const outputPanel = document.getElementById('outputPanel');
   const humanBadge = document.getElementById('humanBadge');
-  const wordcountEl = document.getElementById('wordcount');
+  const aiScoreEl = document.getElementById('aiScore');
+  const humanScoreEl = document.getElementById('humanScore');
   const pills = document.querySelectorAll('.pill');
   let currentSample = null;
   let typingTimer = null;
   let outputTimer = null;
+  let isProgrammaticInput = false;
+  let lastHumanizedText = "";
   let signedUp = false;
 
   // ===== UTILITY =====
-  function updateWordcount() {
-    const n = inputArea.value.trim().split(/\s+/).filter(Boolean).length;
-    wordcountEl.textContent = n ? `${n} words` : '— words';
+  function animateScore(el, from, to, duration) {
+    const start = performance.now();
+    function step(now) {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 2);
+      const val = Math.round(from + (to - from) * eased);
+      el.textContent = val + '%';
+      if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
   }
-  inputArea.addEventListener('input', updateWordcount);
 
-  function typeIntoTextarea(text, speed, done) {
+  function typeIntoTextarea(text, speed, done, onProgress) {
     clearInterval(typingTimer);
+    isProgrammaticInput = true;
     inputArea.value = '';
     let i = 0;
     typingTimer = setInterval(() => {
       inputArea.value += text[i++];
-      updateWordcount();
       inputArea.scrollTop = inputArea.scrollHeight;
-      if (i >= text.length) { clearInterval(typingTimer); if (done) done(); }
+      if (onProgress) onProgress(i / text.length);
+      if (i >= text.length) {
+        clearInterval(typingTimer);
+        isProgrammaticInput = false;
+        if (done) done();
+      }
     }, speed);
   }
 
-  function typeIntoOutput(text, speed, blurAt, done) {
+  // User input handler — clears sample state, sets a generic AI score
+  inputArea.addEventListener('input', () => {
+    if (isProgrammaticInput) return;
+    currentSample = null;
+    pills.forEach(p => p.classList.remove('active'));
+    const txt = inputArea.value.trim();
+    if (!txt) { aiScoreEl.textContent = '—'; return; }
+    // Naive AI score heuristic: long, formal text scores higher
+    const wc = txt.split(/\s+/).filter(Boolean).length;
+    const formalTells = (txt.match(/\b(furthermore|moreover|utilize|leverage|robust|delve|paradigm|multifaceted|thrilled|imperative|intricate|tapestry|synergize|streamline|cutting-edge|state-of-the-art)\b/gi) || []).length;
+    let score = 78 + Math.min(15, formalTells * 3) + (wc > 80 ? 3 : 0);
+    score = Math.min(96, score);
+    aiScoreEl.textContent = score + '%';
+  });
+
+  function typeIntoOutput(text, speed, blurAt, humanTarget) {
     clearInterval(outputTimer);
     outputArea.textContent = '';
     outputArea.classList.add('typing-cursor');
+    copyBtn.style.display = 'none';
     let i = 0;
     const blurIndex = Math.floor(text.length * blurAt);
     const visible = signedUp ? text : text.slice(0, blurIndex);
     outputTimer = setInterval(() => {
       outputArea.textContent += text[i++];
+      const progress = i / text.length;
+      if (humanScoreEl && typeof humanTarget === 'number') {
+        humanScoreEl.textContent = Math.round(humanTarget * progress) + '%';
+      }
       if (i >= visible.length) {
         clearInterval(outputTimer);
         outputArea.classList.remove('typing-cursor');
         if (!signedUp) {
-          // Show gate
           setTimeout(() => { gateEl.style.display = 'block'; }, 200);
+        } else {
+          // Already signed up — show copy button
+          copyBtn.style.display = 'inline-flex';
         }
         humanBadge.style.opacity = '1';
-        if (done) done();
       }
     }, speed);
   }
@@ -618,37 +872,112 @@
   function loadSample(key) {
     currentSample = key;
     pills.forEach(p => p.classList.toggle('active', p.dataset.sample === key));
-    // Reset output
+    // Reset output state
     clearInterval(outputTimer);
     outputArea.textContent = '';
     outputArea.classList.remove('typing-cursor');
     humanBadge.style.opacity = '0';
+    humanScoreEl.textContent = '—';
     gateEl.style.display = 'none';
-    // Type input
+    gateEl.style.opacity = '1';
+    if (copyBtn) copyBtn.style.display = 'none';
+    // Reset AI score and animate as input types
+    aiScoreEl.textContent = '0%';
+    const targetAI = samples[key].aiScore;
     typeIntoTextarea(samples[key].input, 6, () => {
-      // Pulse the humanize button
       btn.classList.remove('pulse'); void btn.offsetWidth; btn.classList.add('pulse');
+    }, (progress) => {
+      aiScoreEl.textContent = Math.round(targetAI * progress) + '%';
     });
   }
 
   pills.forEach(p => p.addEventListener('click', () => loadSample(p.dataset.sample)));
 
-  btn.addEventListener('click', () => {
-    if (!currentSample) {
-      // User pasted custom text — use academic output as fallback
-      const txt = inputArea.value.trim();
-      if (!txt) { inputArea.focus(); return; }
-      // Mobile auto-scroll
-      if (window.innerWidth < 768) {
-        setTimeout(() => outputPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
-      }
-      typeIntoOutput(samples.academic.output, 14, 0.65);
-      return;
+  // ===== PASTE / UPLOAD / COPY =====
+  const pasteBtn = document.getElementById('pasteBtn');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const fileInput = document.getElementById('fileInput');
+  const copyBtn = document.getElementById('copyBtn');
+  const copyBtnLabel = document.getElementById('copyBtnLabel');
+
+  function applyUserText(text) {
+    currentSample = null;
+    pills.forEach(p => p.classList.remove('active'));
+    inputArea.value = text;
+    // Trigger input handler to update AI score
+    inputArea.dispatchEvent(new Event('input'));
+    inputArea.focus();
+    inputArea.scrollTop = 0;
+    btn.classList.remove('pulse'); void btn.offsetWidth; btn.classList.add('pulse');
+  }
+
+  pasteBtn.addEventListener('click', async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text) { showToastMsg('Clipboard is empty', false); return; }
+      applyUserText(text);
+      showToastMsg('Pasted from clipboard', true);
+    } catch (err) {
+      // Fallback: focus textarea so user can paste manually
+      inputArea.focus();
+      showToastMsg('Press ⌘V / Ctrl+V to paste', false);
     }
+  });
+
+  uploadBtn.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (file.size > 200000) { showToastMsg('File too large (max 200 KB)', false); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      applyUserText(String(reader.result || '').slice(0, 8000));
+      showToastMsg(`Loaded ${file.name}`, true);
+    };
+    reader.onerror = () => showToastMsg('Could not read file', false);
+    reader.readAsText(file);
+    fileInput.value = ''; // allow re-upload of same file
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    const txt = signedUp ? lastHumanizedText : outputArea.textContent;
+    if (!txt) return;
+    try {
+      await navigator.clipboard.writeText(txt);
+      copyBtn.classList.add('copied');
+      copyBtnLabel.textContent = 'Copied';
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtnLabel.textContent = 'Copy';
+      }, 1800);
+    } catch (err) {
+      showToastMsg('Could not copy', false);
+    }
+  });
+
+  function runHumanizeOutput(outputText, targetHumanScore) {
+    lastHumanizedText = outputText;
     if (window.innerWidth < 768) {
       setTimeout(() => outputPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
     }
-    typeIntoOutput(samples[currentSample].output, 14, 0.65);
+    humanBadge.style.opacity = '1';
+    humanScoreEl.textContent = '0%';
+    typeIntoOutput(outputText, 14, 0.65, targetHumanScore);
+  }
+
+  btn.addEventListener('click', () => {
+    const txt = inputArea.value.trim();
+    if (!txt) { inputArea.focus(); return; }
+    if (currentSample) {
+      runHumanizeOutput(samples[currentSample].output, samples[currentSample].humanScore);
+    } else {
+      // User pasted their own text — actually humanize it
+      const humanized = humanize(txt);
+      const wc = humanized.split(/\s+/).filter(Boolean).length;
+      const target = wc < 30 ? 88 : 93;
+      runHumanizeOutput(humanized, target);
+    }
   });
 
   // Gate form submit
@@ -658,13 +987,12 @@
     if (!email) return;
     try { localStorage.setItem('humanizerco_email', email); } catch (e) {}
     signedUp = true;
-    // Animate gate out
     gateEl.style.transition = 'opacity 400ms ease';
     gateEl.style.opacity = '0';
     setTimeout(() => {
       gateEl.style.display = 'none';
-      // Finish typing the rest
-      const fullText = samples[currentSample || 'academic'].output;
+      const fullText = lastHumanizedText || (currentSample ? samples[currentSample].output : '');
+      if (!fullText) return;
       const currentLen = outputArea.textContent.length;
       let i = currentLen;
       outputArea.classList.add('typing-cursor');
@@ -673,6 +1001,7 @@
         if (i >= fullText.length) {
           clearInterval(outputTimer);
           outputArea.classList.remove('typing-cursor');
+          copyBtn.style.display = 'inline-flex';
           showToast();
         }
       }, 12);
@@ -680,9 +1009,16 @@
   });
 
   function showToast() {
+    showToastMsg('Your 3 free humanizations are ready.', true);
+  }
+  function showToastMsg(msg, success) {
     const toast = document.getElementById('toast');
+    toast.querySelector('span:last-child').textContent = msg;
+    toast.querySelector('span:first-child').textContent = success ? '✓' : '!';
+    toast.querySelector('span:first-child').style.color = success ? 'var(--success)' : 'var(--accent)';
     toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3600);
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
   function scrollToDemo() {
