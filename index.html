@@ -536,6 +536,10 @@
     color: var(--fg-soft);
   }
 
+  /* Pricing: featured card pops with scale + extra top padding for the badge */
+  .pricing-featured { transform: scale(1.03); transform-origin: top center; padding-top: 28px !important; }
+  @media (max-width: 767px) { .pricing-featured { transform: none; margin-top: 12px; } }
+
   /* Subtle border accent line under nav */
   .nav-border { border-bottom: 1px solid var(--border-soft); }
 
@@ -947,39 +951,74 @@
 
 <!-- PRICING -->
 <section id="pricing" class="border-t hairline">
-  <div class="max-w-4xl mx-auto px-6 md:px-8 py-20 md:py-28 text-center">
-    <p class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:var(--accent)">Pricing</p>
-    <h2 class="display text-4xl md:text-5xl font-bold leading-[1.05] mb-3">
-      Start free, <span class="display-italic">forever</span>.
-    </h2>
-    <p class="text-base mb-12 max-w-md mx-auto" style="color:var(--fg-muted)">Try 3 humanizations a day on us. No credit card. Upgrade only when you need more.</p>
-
-    <div class="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto text-left">
-      <div class="card p-7">
-        <p class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:var(--fg-muted)">Free</p>
-        <p class="display text-4xl font-bold mb-1">$0<span class="text-base font-normal" style="color:var(--fg-muted)">/month</span></p>
-        <p class="text-sm mb-6" style="color:var(--fg-muted)">For curious students and casual writers.</p>
-        <ul class="text-sm space-y-2.5 mb-7" style="color:var(--fg-soft)">
-          <li class="flex gap-2"><span style="color:var(--accent)">✓</span> 3 humanizations per day</li>
-          <li class="flex gap-2"><span style="color:var(--accent)">✓</span> Up to 1,500 words per pass</li>
-          <li class="flex gap-2"><span style="color:var(--accent)">✓</span> Works with all major detectors</li>
-        </ul>
-        <button onclick="scrollToDemo()" class="btn-ghost w-full">Start Free</button>
-      </div>
-      <div class="card p-7 relative" style="border-color:var(--accent)">
-        <span class="absolute -top-3 right-6 tag" style="background:var(--accent);color:var(--accent-on);border:none">Most popular</span>
-        <p class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:var(--accent)">Pro</p>
-        <p class="display text-4xl font-bold mb-1">$9<span class="text-base font-normal" style="color:var(--fg-muted)">/month</span></p>
-        <p class="text-sm mb-6" style="color:var(--fg-muted)">For writers who do this for a living.</p>
-        <ul class="text-sm space-y-2.5 mb-7" style="color:var(--fg-soft)">
-          <li class="flex gap-2"><span style="color:var(--accent)">✓</span> Unlimited humanizations</li>
-          <li class="flex gap-2"><span style="color:var(--accent)">✓</span> Up to 10,000 words per pass</li>
-          <li class="flex gap-2"><span style="color:var(--accent)">✓</span> Priority processing</li>
-          <li class="flex gap-2"><span style="color:var(--accent)">✓</span> Tone presets &amp; style memory</li>
-        </ul>
-        <button onclick="scrollToDemo()" class="btn-primary w-full">Try free first →</button>
-      </div>
+  <div class="max-w-6xl mx-auto px-6 md:px-8 py-20 md:py-28">
+    <div class="text-center mb-12">
+      <p class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:var(--accent)">Pricing</p>
+      <h2 class="display text-4xl md:text-5xl font-bold leading-[1.05] mb-3">
+        No subscription <span class="display-italic">required</span>.
+      </h2>
+      <p class="text-base max-w-md mx-auto" style="color:var(--fg-muted)">Pay only for what you need. No auto-renewals, no lock-in.</p>
     </div>
+
+    <!-- 3-column card grid -->
+    <div class="grid md:grid-cols-3 gap-4 md:gap-5 items-start">
+
+      <!-- Card 1: Free -->
+      <div class="card p-7 text-left">
+        <p class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:var(--fg-muted)">Free</p>
+        <p class="display text-5xl font-bold mb-1" style="color:var(--fg)">$0</p>
+        <p class="text-sm mb-6 mt-1" style="color:var(--fg-muted)">For a quick test.</p>
+        <ul class="text-sm space-y-3 mb-8" style="color:var(--fg-soft)">
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> 2 humanizations per day</li>
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> Strict 300-word limit per pass</li>
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> Standard speed</li>
+        </ul>
+        <button onclick="scrollToDemo()" class="btn-ghost w-full" style="color:var(--fg-muted);border-color:var(--border-soft)">Current Plan</button>
+      </div>
+
+      <!-- Card 2: 48-Hour Pass (most popular, scaled up) -->
+      <div class="card p-7 text-left relative pricing-featured" style="border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 24px 48px -12px oklch(80% 0.135 75 / 0.20);">
+        <span class="absolute -top-3.5 left-1/2 -translate-x-1/2 tag" style="background:var(--accent);color:var(--accent-on);border:none;white-space:nowrap">✦ Most Popular</span>
+        <p class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:var(--accent)">48-Hour Pass</p>
+        <div class="flex items-end gap-2 mb-1">
+          <p class="display text-5xl font-bold" style="color:var(--fg)">$4.99</p>
+        </div>
+        <span class="inline-block text-xs font-semibold tracking-wide uppercase px-2 py-0.5 rounded mb-1" style="background:var(--accent-dim);color:var(--accent)">One-time payment</span>
+        <p class="text-sm mb-6 mt-2" style="color:var(--fg-muted)">Perfect for a single essay or project.</p>
+        <ul class="text-sm space-y-3 mb-8" style="color:var(--fg-soft)">
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> Full access for 48 hours</li>
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> Up to 15,000 words total</li>
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> Zero subscription, no hidden fees</li>
+        </ul>
+        <button onclick="scrollToDemo()" class="btn-primary w-full" style="box-shadow:0 8px 28px -8px oklch(80% 0.135 75 / 0.55)">Get 48-Hour Pass</button>
+      </div>
+
+      <!-- Card 3: Pro Monthly -->
+      <div class="card p-7 text-left">
+        <p class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:var(--fg-muted)">Pro Monthly</p>
+        <div class="flex items-end gap-1 mb-1">
+          <p class="display text-5xl font-bold" style="color:var(--fg)">$12.99</p>
+          <span class="text-sm mb-1.5" style="color:var(--fg-muted)">/month</span>
+        </div>
+        <p class="text-sm mb-6 mt-1" style="color:var(--fg-muted)">For freelancers and regular writers.</p>
+        <ul class="text-sm space-y-3 mb-8" style="color:var(--fg-soft)">
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> 100,000 baseline words/month</li>
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> Never run out: pay-as-you-go top-ups</li>
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> Tone presets &amp; style memory</li>
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> Priority API processing</li>
+        </ul>
+        <button onclick="scrollToDemo()" class="btn-ghost w-full" style="border-color:var(--accent);color:var(--accent)">Subscribe Monthly</button>
+      </div>
+
+    </div><!-- /grid -->
+
+    <!-- Pay-as-you-go banner -->
+    <div class="mt-6 px-6 py-4 rounded-xl text-sm text-center" style="background:oklch(18% 0.012 60);border:1px solid var(--border-soft)">
+      <span style="color:var(--fg-muted)">Need bulk words without a subscription? Add non-expiring word credits anytime</span>
+      <span style="color:var(--fg-soft)"> — e.g., </span><span style="font-family:'Special Elite','Courier New',monospace;color:var(--accent)">$5</span><span style="color:var(--fg-soft)"> for </span><span style="font-family:'Special Elite','Courier New',monospace;color:var(--accent)">50k words</span>
+      <span style="color:var(--fg-muted)"> — once you create a free account.</span>
+    </div>
+
   </div>
 </section>
 
