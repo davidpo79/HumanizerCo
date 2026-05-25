@@ -1,44 +1,43 @@
-# Assignment #2 — A/B Test Ideation
+# Assignment 2: A/B Test Write-up
 
-Three tests on the control LP from Assignment #1. Each test isolates exactly **one** variable so the result is interpretable. They were chosen because each addresses a different layer of the conversion funnel — friction (gate placement), emotion (CTA copy), and proof (live evidence) — meaning the lessons compound rather than overlap.
+I designed three tests, each changing exactly one thing. The point of keeping them isolated is that if you change multiple things at once, you learn that the variant won, but you don't learn why, which means you can't build on it. Each of these tests also addresses a different part of why a visitor might not convert: where the ask is placed, how it's framed emotionally, and whether the proof of value is strong enough. The lessons from all three compound rather than overlap.
 
-For all three tests:
-- **Primary KPI**: Signup rate (signups / page visits).
-- **Sample size**: Targeted at a minimum detectable effect of 10% relative lift at 95% confidence, ~1,500 visitors per arm (assumes a control CVR around 12–15%).
-- **Guardrail metric**: Bounce rate (< 5% relative degradation acceptable).
+For all three, the primary metric is signup rate (signups / page visits), and I'd set up bounce rate as a guardrail to catch cases where a change increases one group of signups but repels more people than it converts.
 
----
+## Test 1: Where does the gate go?
 
-## Test 1 — `variant-a.html`: Gate position
+Right now the control blurs the output at 65% of the text and asks for an email to see the rest. The variant removes the blur entirely. The full humanized output is visible from the moment it finishes typing. Instead, a "Copy result" button appears at the bottom of the panel, showing a small lock icon. When the user clicks it, a modal with an email field appears.
 
-**The change.** Remove the mid-text blur. Reveal the FULL humanized output. Replace the inline gate with a sticky **"Copy result"** button at the bottom of the output panel; the button shows a lock icon and triggers the signup modal on click. On mobile the Copy button is `position: sticky` so it never falls below the fold no matter how long the output runs.
+The reasoning is that a blur mid-text creates a specific kind of doubt. The user has seen some of the rewrite but not all of it, and they have to decide whether to trust the rest before they've read it. Moving the gate to the copy action changes the psychology completely. By the time they want to copy, they've read the whole thing and already decided it's good. The signup cost feels smaller relative to the value already confirmed.
 
-**Hypothesis.** Mid-text blur creates *uncertainty* — the user is asked to sign up before they have confirmed the rewrite is actually good. Letting them read the full result first removes that doubt: by the time they decide to copy, they have already vetted the quality themselves and the signup is felt as a small cost for a value already received. The control's gate sits at "I think this might work"; the variant's gate sits at "I want to use this right now." Industry paywall research (Adapty, 2025) finds soft paywalls placed after full value delivery convert ~30–45% better than mid-value cuts; I expect a meaningful positive lift here, but it is not certain — the counter-argument is that some users may simply screenshot or retype the output rather than copy, leaving without signing up.
+On mobile, the copy button is sticky at the bottom of the output area so it stays visible as the user scrolls through longer rewrites. Otherwise there's a real risk of it disappearing below the fold on small screens.
 
-**KPIs.** Primary: signup rate. Secondary: Copy-button click rate (a leading indicator — measures "users who reached full value"); ratio of copy-clicks to signups (measures the gate's effectiveness at converting intent). Guardrail: bounce rate and time-on-hero (we should not see disengagement).
+The secondary metric I'd track alongside signup rate is the copy-button click rate, which tells you how many users actually made it to that moment of intent. If the variant drives more clicks but doesn't convert them to signups, the modal itself needs work. If the click rate and signup rate both rise, the hypothesis holds.
 
----
+## Test 2: What does the gate say?
 
-## Test 2 — `variant-b.html`: CTA copy — anxiety framing
+The only thing that changes here is the copy inside the gate overlay. Everything else is identical to the control.
 
-**The change.** Same blur position as control, same layout, single change in the gate copy. The control reads "Your rewrite is ready. See the full result and copy it. No credit card needed." with the CTA "See Result →." The variant reads "Stop getting flagged. Detectors won't catch this rewrite. It's free — no credit card, just an email." with the CTA "Stay invisible →." The badge icon also changes from a star to a warning glyph to match the tonal shift.
+The control reads: "See the full result. No credit card needed."
 
-**Hypothesis.** "Free ai humanizer" searchers are not casually curious. They have a specific pain point — academic flagging, client AI policies, professional embarrassment — and they searched the way they did because that anxiety is active. The control speaks to convenience ("see the full result"); the variant speaks to relief ("stop getting flagged"). Loss-aversion framing (Kahneman) consistently outperforms gain framing in high-stakes contexts, and "free ai humanizer" is a high-stakes search. I expect a positive lift on signup, with the risk being that some users find the anxiety framing too negative and bounce — which is exactly what the bounce-rate guardrail will catch.
+The variant reads: "Stop getting flagged. Detectors won't catch this rewrite. It's free — no credit card, just an email." The CTA button changes from "See Result" to "Stay invisible."
 
-**KPIs.** Primary: signup rate. Secondary: time-to-gate-click (anxiety framing should compress this — emotional copy tends to drive faster decisions); scroll-depth before signup (does the variant make users skip downstream sections like FAQ?). Guardrail: bounce rate from the hero — if the negative framing repels rather than converts, bounces will spike before signups.
+The people landing on this page searched for "free ai humanizer." That search doesn't come from idle curiosity. It comes from someone who has already been flagged, or is scared they will be, or just had a client push back on their work. The anxiety is active. The control copy speaks to a neutral benefit (see your result). The variant speaks directly to the fear that brought them here in the first place.
 
----
+Loss aversion research is pretty consistent that fear of a bad outcome motivates action more reliably than the promise of a good one, especially in high-stakes situations. Getting flagged by Turnitin or losing a client over AI detection is high stakes. Framing the gate around relief from that specific fear should convert better than a generic "here's your result."
 
-## Test 3 — `variant-c.html`: Live AI detection score widget
+The risk is that it comes off as alarmist and some users bounce. That's exactly why I'd monitor bounce rate closely. If anxiety framing repels more people than it converts, it'll show up as a spike in hero exits before the gate is reached.
 
-**The change.** Same blur position, same gate, same copy as control. The output panel gains a real-time "AI Probability" meter above the typing area: a numeric percentage and a horizontal bar that start at **87%** (red) when the panel is idle and animate down to **~8%** (green) as the humanized text types out. The widget references the major detectors (GPTZero, Turnitin, Originality.ai) by name. The score color shifts red → amber → green at thresholds of 50% and 20%.
+## Test 3: Can we show the proof in numbers?
 
-**Hypothesis.** The control proves quality qualitatively — "this reads more human." The variant proves it quantitatively — "this is 87% AI dropping to 8% AI in front of your eyes." For a category where the user's specific anxiety is *detector scores*, naming the exact metric they care about (and showing it move in real time) is a much sharper proof signal than implicit textual quality. Real-time social proof and visible-progress UI elements have shown 25–98% lifts in prior studies (Provesrc, 2025). The downside risk: the extra widget adds visual complexity to the hero, which could fragment attention and slow the time-to-gate. The test will tell us whether the proof gain outweighs the cognitive-load cost.
+This one adds a single element to the output panel: a live AI probability meter. When the page loads, it shows 87% (red). As the humanized text types out, it counts down in real time, finishing around 8% (green) when the output is complete. The widget shows the three major detector names — GPTZero, Turnitin, Originality.ai — and the bar shifts from red to amber to green as the percentage drops.
 
-**KPIs.** Primary: signup rate. Secondary: time-on-hero (does the widget hold attention longer, suggesting deeper engagement?); gate-shown to signup conversion (does seeing "8% AI" right before the gate increase the gate's conversion rate specifically?). Guardrail: hero exit rate without scrolling — if the widget overwhelms, users will leave without ever scrolling.
+Nothing else changes. Same gate, same copy, same blur position as the control.
 
----
+The hypothesis is about specificity of proof. The control demonstrates quality through the text itself — you read it and it sounds more natural. The variant demonstrates quality through a number you can verify. These users care about detector scores. That's what they searched for. Showing the exact metric they're anxious about, and watching it move in real time, is a much more direct match to what they came for than asking them to judge the prose quality themselves.
 
-## Why these three, and in this order
+The downside I'm watching for is attention fragmentation. The widget adds something to look at above the output, which could pull focus away from actually reading the rewrite and slow the path to the gate. Time-on-hero will tell us whether users are engaging more deeply or just getting distracted. Bounce rate will tell us if the extra complexity costs more than it contributes.
 
-If I could only run one, it would be **Test 1 (gate position)** — gate placement is the single largest lever on this page, and the control's blur is the most "default" choice in this design, making it the most likely to be wrong. Test 3 (the score widget) is the one with the most upside but also the most unpredictable downside, so I would run it second. Test 2 (anxiety framing) is the cheapest to ship and the safest — even if it loses, the loss tells us something useful about whether this audience prefers calm or charged copy, which informs every future ad creative.
+## Which one I'd run first
+
+Test 1 is the highest-leverage change and I'd run it first. Gate placement affects every visitor who makes it to the end of the demo, and the control's blur-at-65% decision is the most likely assumption to be wrong. If the result is positive, it changes how we think about gating on every future page we build. Test 3 has the most upside but also the most uncertainty, so I'd run it second when we have a cleaner baseline to test against. Test 2 is the safest and cheapest of the three — even a loss is informative, because it tells us how this audience responds to charged versus calm copy, which has direct implications for ad creative.
