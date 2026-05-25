@@ -341,7 +341,7 @@
   }
   .det-row .det-bar-fill {
     height: 100%; border-radius: 999px;
-    background: linear-gradient(90deg, oklch(70% 0.16 28), oklch(72% 0.18 28));
+    background: linear-gradient(90deg, hsl(18, 72%, 52%), hsl(14, 76%, 56%));
     width: 0; transition: width 900ms cubic-bezier(.5,.05,.5,.95);
   }
   .det-row .det-num {
@@ -1475,7 +1475,7 @@
       const eased = 1 - Math.pow(1 - t, 2);
       meterNum.textContent = Math.round(startVal + (avg - startVal) * eased) + '%';
       // Color shifts based on score
-      const c = avg > 60 ? 'oklch(72% 0.18 28)' : avg > 30 ? 'oklch(78% 0.14 75)' : 'oklch(72% 0.15 145)';
+      const c = avg > 60 ? 'hsl(14, 76%, 56%)' : avg > 30 ? 'hsl(38, 80%, 58%)' : 'hsl(142, 45%, 52%)';
       meterNum.style.color = c;
       if (t < 1) requestAnimationFrame(step);
     };
@@ -1489,10 +1489,10 @@
         if (num) num.textContent = val + '%';
         if (fill) {
           fill.style.background = val > 60
-            ? 'linear-gradient(90deg, oklch(70% 0.16 28), oklch(72% 0.18 28))'
+            ? 'linear-gradient(90deg, hsl(18, 72%, 52%), hsl(14, 76%, 56%))'
             : val > 30
-            ? 'linear-gradient(90deg, oklch(76% 0.14 75), oklch(80% 0.14 75))'
-            : 'linear-gradient(90deg, oklch(70% 0.14 145), oklch(72% 0.15 145))';
+            ? 'linear-gradient(90deg, hsl(36, 75%, 54%), hsl(38, 80%, 58%))'
+            : 'linear-gradient(90deg, hsl(140, 44%, 48%), hsl(142, 45%, 52%))';
         }
       }, 200 + i * 180);
     });
@@ -1502,9 +1502,9 @@
       : avg > 40
       ? 'Mixed signals. Some detectors will flag it.'
       : 'Reads as genuinely human. You should be fine.';
-    detectorVerdict.style.background = avg > 60 ? 'oklch(30% 0.10 28 / 0.20)' : avg > 30 ? 'oklch(30% 0.06 75 / 0.30)' : 'oklch(30% 0.08 145 / 0.25)';
-    detectorVerdict.style.color = avg > 60 ? 'oklch(78% 0.14 28)' : avg > 30 ? 'oklch(82% 0.13 75)' : 'oklch(78% 0.14 145)';
-    detectorVerdict.style.borderColor = avg > 60 ? 'oklch(50% 0.14 28 / 0.30)' : avg > 30 ? 'oklch(50% 0.10 75 / 0.30)' : 'oklch(50% 0.12 145 / 0.30)';
+    detectorVerdict.style.background = avg > 60 ? 'hsla(14, 60%, 22%, 0.35)' : avg > 30 ? 'hsla(36, 55%, 22%, 0.35)' : 'hsla(140, 40%, 18%, 0.35)';
+    detectorVerdict.style.color = avg > 60 ? 'hsl(14, 70%, 64%)' : avg > 30 ? 'hsl(38, 75%, 62%)' : 'hsl(142, 44%, 58%)';
+    detectorVerdict.style.borderColor = avg > 60 ? 'hsla(14, 65%, 45%, 0.35)' : avg > 30 ? 'hsla(36, 60%, 45%, 0.35)' : 'hsla(140, 45%, 40%, 0.35)';
     switchToHumanize.style.display = avg > 50 ? 'inline-flex' : 'none';
   }
 
