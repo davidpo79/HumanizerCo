@@ -28,7 +28,7 @@ The control blurs the output at 65% of the text and asks for an email to see the
 
 **Hypothesis:** The mid-output blur creates a specific kind of doubt. The user has seen some of the rewrite but not all of it, and they have to decide whether to trust the rest before they've read it. Moving the gate to the copy action changes the psychology: by the time the user wants to copy, they've read the whole thing and already decided it's good. The signup cost feels smaller relative to value already confirmed.
 
-**What changes:** The blur gate is removed entirely. The full humanized output is always visible, with no truncation or blur strip. A Copy button appears at the bottom of the output panel once the text finishes typing. When the user clicks Copy, a modal appears asking for their email ("Enter your email to copy, free, no credit card"). The CTA is "Unlock & Copy →".
+**What changes:** The blur gate is removed entirely. The sample pills and the overall page structure stay identical to the control. The full humanized output is always visible, with no truncation or blur strip. A Copy button appears at the bottom of the output panel once the text finishes typing. When the user clicks Copy, a modal appears asking for their email ("Enter your email to copy, free, no credit card"). The CTA is "Unlock & Copy →".
 
 **Why it might win:** Full visibility before the ask reduces the "what if the rest is bad?" objection. Users who reach the Copy button have self-selected as interested. They've read the output, evaluated it, and decided they want it. Conversion at that moment should be higher than conversion at a blur gate they hit mid-read.
 
