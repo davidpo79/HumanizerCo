@@ -42,4 +42,18 @@ The gate CTA says "See the full result. No credit card needed." rather than some
 
 No interstitial popups, no testimonial carousels, no three-column feature grids with emoji icons. Pricing lives below the fold because at this stage the sale is an email address, not a subscription. The Pro plan is on the page so people know an upgrade path exists, but the page never pushes it.
 
-The whole thing ships as a single HTML file with no build step. Tailwind CDN for layout, Google Fonts for typography, vanilla JavaScript for the demo state machine.
+## Technical setup
+
+The whole landing page is a single self-contained HTML file. No build step, no bundler, no framework. That was a deliberate choice for an assignment context where someone needs to open it, look at the code, and immediately understand what's happening.
+
+What it's built with:
+
+- **HTML5** for the markup, semantic where it matters (sections, articles, figures for testimonials).
+- **CSS** written directly in the head, using modern features: CSS custom properties for the theme tokens, OKLCH for all colors (better perceptual uniformity than HSL), `backdrop-filter` for the blur gate, and CSS animations for the typing cursor and the gate reveal. No preprocessor.
+- **Tailwind CSS** pulled in via CDN for layout and spacing utilities. Used alongside the custom CSS, not instead of it. This keeps the file small and avoids a build pipeline.
+- **Vanilla JavaScript** for everything interactive: the typing state machine, the sample pills, the live counter, the gate logic, and the form handling. No React, no jQuery, nothing. About 120 lines of JS in total.
+- **Google Fonts** for typography (Fraunces and DM Sans), loaded with `preconnect` for faster paint.
+
+The humanization itself is simulated for the demo. Each sample pill has a hardcoded "before" and "after" pair, and the output panel types out the after text character by character. In production this would be a call to a backend API, but for this assignment the simulation is what makes the page work as a standalone file you can drop anywhere.
+
+**Hosting**: The page is deployed on **Railway**. Static-site deploy, no server runtime needed, automatic HTTPS, and the build process is essentially "serve this HTML file." Total cold-start time is effectively zero because there's nothing to start.
