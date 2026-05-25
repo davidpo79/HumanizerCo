@@ -382,26 +382,36 @@
   .copy-btn.copied { color: var(--success); border-color: var(--success); }
   .copy-btn svg { width: 13px; height: 13px; }
 
-  /* Score badges (AI / Human probability) */
+  /* Score badges (AI / Human identity) */
   .score-badge {
-    display: inline-flex; align-items: center; gap: 7px;
+    display: inline-flex; align-items: center; gap: 6px;
     font-size: 11.5px; font-weight: 600;
-    padding: 4px 10px 4px 8px; border-radius: 999px;
+    font-family: var(--font-mono);
+    padding: 5px 11px 5px 8px; border-radius: 999px;
     border: 1px solid var(--border);
     background: var(--bg-input);
-    letter-spacing: 0.01em;
-    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    transition: box-shadow 400ms ease;
   }
-  .score-badge .score-dot {
-    width: 6px; height: 6px; border-radius: 999px;
-    box-shadow: 0 0 8px currentColor;
-    transition: background 400ms ease, box-shadow 400ms ease;
+  /* ❄️ Cold AI Bot — ice blue */
+  .score-badge.ai {
+    color: oklch(68% 0.13 250);
+    border-color: oklch(75% 0.15 250 / 0.45);
+    background: oklch(13% 0.05 250 / 0.7);
+    box-shadow: 0 0 14px oklch(75% 0.15 250 / 0.22), inset 0 0 8px oklch(75% 0.15 250 / 0.07);
   }
-  .score-badge.ai     { color: oklch(72% 0.18 28); }
-  .score-badge.ai .score-dot     { background: oklch(72% 0.18 28); }
-  .score-badge.human  { color: var(--success); }
-  .score-badge.human .score-dot  { background: var(--success); }
-  .score-badge .score-label { color: var(--fg-muted); font-weight: 500; }
+  .score-badge.ai svg { color: var(--ai-cold); filter: drop-shadow(0 0 4px oklch(75% 0.15 250 / 0.7)); }
+  .score-badge.ai .score-label { color: oklch(68% 0.13 250); font-weight: 600; }
+  /* 🔥 Warm Human Tone — amber gold */
+  .score-badge.human {
+    color: oklch(70% 0.12 75);
+    border-color: oklch(78% 0.14 75 / 0.45);
+    background: oklch(13% 0.04 75 / 0.7);
+    box-shadow: 0 0 14px oklch(78% 0.14 75 / 0.22), inset 0 0 8px oklch(78% 0.14 75 / 0.07);
+  }
+  .score-badge.human svg { color: var(--accent); filter: drop-shadow(0 0 4px oklch(78% 0.14 75 / 0.7)); }
+  .score-badge.human .score-label { color: oklch(70% 0.12 75); font-weight: 600; }
 
   /* VARIANT C: AI probability widget */
   .ai-prob-widget {
@@ -655,7 +665,7 @@
       When everyone sounds like a bot,<br><span class="display-italic" style="color:var(--accent)">sound human.</span>
     </h1>
     <p class="reveal text-base md:text-lg max-w-xl mx-auto leading-relaxed" style="color:var(--fg-muted)">
-      Paste your AI draft below. Turn cold AI into warm, 100% undetectable text that reads like it came straight from your own typewriter...unmistakably yours.
+      Paste your AI draft below. Turn cold AI into warm, 100% undetectable text that reads like it came straight from your own typewriter—unmistakably yours.
     </p>
   </div>
 
@@ -684,9 +694,19 @@
           <span id="inputPanelLabel" class="text-xs font-semibold tracking-widest uppercase" style="color:var(--fg-muted)">AI Text</span>
         </div>
         <span class="score-badge ai">
-          <span class="score-dot"></span>
-          <span class="score-label">AI</span>
-          <span id="aiScore">—</span>
+          <!-- Rigid robotic head: rectangular skull, square eyes, grid mouth, antenna -->
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <line x1="10" y1="4" x2="10" y2="1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            <circle cx="10" cy="1" r="1" fill="currentColor"/>
+            <rect x="3.5" y="4" width="13" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+            <rect x="5.5" y="7.5" width="3" height="2.5" rx="0.4" fill="currentColor"/>
+            <rect x="11.5" y="7.5" width="3" height="2.5" rx="0.4" fill="currentColor"/>
+            <line x1="6" y1="13" x2="14" y2="13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="9"  y1="11.5" x2="9"  y2="14" stroke="currentColor" stroke-width="0.9"/>
+            <line x1="11" y1="11.5" x2="11" y2="14" stroke="currentColor" stroke-width="0.9"/>
+          </svg>
+          <span class="score-label">❄️ Cold AI Bot</span>
+          <span id="aiScore" style="display:none">—</span>
         </span>
       </div>
 
@@ -756,9 +776,16 @@
           <span id="outputPanelLabel" class="text-xs font-semibold tracking-widest uppercase" style="color:var(--fg-muted)">Human Text</span>
         </div>
         <span id="humanBadge" class="score-badge human" style="opacity:0;transition:opacity 300ms ease">
-          <span class="score-dot"></span>
-          <span class="score-label">Human</span>
-          <span id="humanScore">—</span>
+          <!-- Organic human head + shoulders, tiny quill pen bottom-right -->
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="10" cy="6.5" r="3.5" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M4 18c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            <line x1="15.5" y1="2" x2="18.5" y2="5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <line x1="15" y1="3" x2="13.5" y2="7.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            <line x1="13.5" y1="7.5" x2="12.5" y2="6.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+          </svg>
+          <span class="score-label">🔥 Warm Human Tone</span>
+          <span id="humanScore" style="display:none">—</span>
         </span>
       </div>
 
