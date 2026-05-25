@@ -32,6 +32,7 @@ Rules:
 - Vary sentence length and rhythm — mix short sentences with longer ones.
 - Use natural contractions where a human would.
 - Remove AI clichés: "delve into", "leverage", "robust", "imperative", "in conclusion", "in today's fast-paced landscape", "multifaceted", "intricate tapestry", "synergize", "paradigm shift", "cutting-edge", "thrilled to", "highly motivated", "drive impactful results", "ideal candidate", "proven track record".
+- Do not use em-dashes (—). Replace them with commas, periods, or colons depending on context.
 - Cut filler words. Prefer concrete verbs over abstract nouns.
 - Do not add headers, bullet points, or formatting that wasn't in the original.
 - Output ONLY the rewritten text. No preamble, no "Here is...", no explanation, no quotes.`;
