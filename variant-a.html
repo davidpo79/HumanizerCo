@@ -6,10 +6,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HumanizerCo — Free AI Humanizer. Write with confidence.</title>
 <meta name="description" content="Paste any AI-generated text and get back writing that sounds genuinely human. No AI flags. Free.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231a1510'/><rect x='12' y='1' width='8' height='8' rx='0.5' fill='%23c89a2c' opacity='.3'/><line x1='14' y1='3' x2='18' y2='3' stroke='%23c89a2c' stroke-width='1' opacity='.6'/><line x1='14' y1='5.5' x2='17' y2='5.5' stroke='%23c89a2c' stroke-width='1' opacity='.45'/><rect x='2' y='7' width='28' height='5' rx='2.5' fill='%23c89a2c'/><rect x='4' y='13' width='24' height='13' rx='2' fill='%23c89a2c' opacity='.18'/><rect x='4' y='13' width='24' height='2.5' rx='1' fill='%23c89a2c' opacity='.32'/><circle cx='8.5' cy='19' r='2' fill='%23c89a2c' opacity='.85'/><circle cx='13.5' cy='19' r='2' fill='%23c89a2c' opacity='.85'/><circle cx='18.5' cy='19' r='2' fill='%23c89a2c' opacity='.85'/><circle cx='23.5' cy='19' r='2' fill='%23c89a2c' opacity='.85'/><rect x='9' y='23' width='14' height='2.5' rx='1.25' fill='%23c89a2c' opacity='.55'/></svg>">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=DM+Sans:wght@400;500;600;700&family=Special+Elite&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg:          oklch(14% 0.012 60);
@@ -28,6 +29,11 @@
     --success-dim: oklch(30% 0.080 145 / 0.35);
     --border:      oklch(28% 0.014 60 / 0.7);
     --border-soft: oklch(24% 0.014 60 / 0.5);
+    --font-mono:   'Special Elite', 'Courier New', monospace;
+    --detect:      oklch(63% 0.08 150);
+    --detect-hi:   oklch(68% 0.08 150);
+    --detect-dim:  oklch(25% 0.05 150 / 0.35);
+    --detect-on:   oklch(14% 0.012 60);
   }
 
   * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
@@ -107,6 +113,18 @@
     outline: none; resize: none;
     transition: border-color 160ms ease, box-shadow 160ms ease;
   }
+  textarea {
+    font-family: 'Special Elite', 'Courier New', monospace !important; font-size: 15px !important; line-height: 1.8; letter-spacing: 0.01em;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(1.8em - 1px),
+      oklch(30% 0.014 60 / 0.45) calc(1.8em - 1px),
+      oklch(30% 0.014 60 / 0.45) 1.8em
+    );
+    background-size: 100% 1.8em;
+    background-position: 0 14px;
+  }
   textarea:focus, input[type="email"]:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 3px oklch(80% 0.135 75 / 0.15);
@@ -114,67 +132,52 @@
 
   /* Output text styling */
   .output-content {
-    font-size: 14.5px; line-height: 1.85; color: var(--fg);
-    min-height: 240px; padding: 4px 2px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Special Elite', 'Courier New', monospace !important;
+    font-size: 15px !important; line-height: 1.8; color: var(--fg);
+    min-height: 240px; padding: 4px 2px; letter-spacing: 0.01em;
   }
   .output-content p { margin-bottom: 12px; }
 
-  /* Variant A: modal gate (replaces inline blur) */
-  #gate {
-    position: fixed; inset: 0;
-    background: oklch(0% 0 0 / 0.7);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 50;
-    padding: 20px;
-    backdrop-filter: blur(6px);
+  /* Blur gate */
+  .gate-blur-strip {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    height: 78%;
+    background: linear-gradient(to bottom,
+      oklch(19% 0.014 60 / 0) 0%,
+      oklch(19% 0.014 60 / 0.85) 35%,
+      oklch(19% 0.014 60 / 1) 70%);
+    backdrop-filter: blur(2.5px);
+    pointer-events: none;
+    border-radius: 0 0 14px 14px;
   }
-  .gate-modal-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 32px 28px 24px;
-    max-width: 440px; width: 100%;
+  .gate-content {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 28px 20px 20px;
     text-align: center;
-    position: relative;
-    box-shadow: 0 30px 60px -20px oklch(0% 0 0 / 0.7);
-  }
-  .gate-close {
-    position: absolute; top: 12px; right: 12px;
-    width: 32px; height: 32px; border-radius: 999px;
-    background: transparent; border: 1px solid var(--border);
-    color: var(--fg-muted); cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center;
-    transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
-  }
-  .gate-close:hover { color: var(--fg); border-color: var(--accent); background: var(--accent-dim); }
-
-  /* Variant A: locked copy button shown at bottom of output panel */
-  .copy-locked {
-    display: none;
-    align-items: center; justify-content: center; gap: 8px;
-    width: 100%; margin-top: 18px;
-    padding: 12px 18px;
-    background: var(--accent); color: var(--accent-on);
-    border: none; border-radius: 10px;
-    font-weight: 600; font-size: 14px;
-    cursor: pointer;
-    box-shadow: 0 1px 0 oklch(95% 0.05 80 / 0.3) inset, 0 8px 24px -8px oklch(80% 0.135 75 / 0.4);
-    transition: transform 140ms ease, background 200ms ease;
-  }
-  .copy-locked:hover { background: var(--accent-hi); transform: translateY(-1px); }
-  .copy-locked svg { width: 14px; height: 14px; }
-  @media (max-width: 767px) {
-    .copy-locked { position: sticky; bottom: 12px; }
   }
 
   /* Caret/cursor for typing effect */
   .typing-cursor::after {
-    content: "▋"; color: var(--accent);
-    animation: blink 0.9s steps(2, end) infinite;
-    margin-left: 2px;
+    content: "_";
+    color: var(--accent);
+    font-family: 'Special Elite', 'Courier New', monospace !important;
+    font-size: 15px;
+    animation: blink 0.6s steps(1, end) infinite;
+    margin-left: 1px;
   }
-  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* Loading state in output panel */
+  .loading-bar-track {
+    height: 3px; background: var(--border); border-radius: 999px; overflow: hidden; margin-bottom: 18px;
+  }
+  .loading-bar-fill {
+    height: 100%; width: 0; background: var(--accent); border-radius: 999px;
+    transition: width 8s ease-out;
+  }
+  .loading-label {
+    font-family: var(--font-mono); font-size: 13px; color: var(--fg-muted);
+  }
 
   /* Pulse animation for CTA */
   @keyframes ctaPulse {
@@ -186,6 +189,18 @@
   /* Page-load reveal */
   .reveal { opacity: 0; transform: translateY(12px); transition: opacity 700ms cubic-bezier(.16,.84,.3,1), transform 700ms cubic-bezier(.16,.84,.3,1); }
   .reveal.in { opacity: 1; transform: none; }
+
+  /* How it works step animation */
+  .step-item {
+    opacity: 0; transform: translateY(28px);
+    transition: opacity 650ms cubic-bezier(.16,.84,.3,1), transform 650ms cubic-bezier(.16,.84,.3,1);
+  }
+  .step-item.in { opacity: 1; transform: none; }
+  /* Number count-up effect: slide in from below */
+  .step-num {
+    display: inline-block;
+    transition: color 400ms ease;
+  }
 
   /* FAQ accordion */
   details summary { list-style: none; cursor: pointer; }
@@ -231,6 +246,37 @@
     box-shadow: 0 4px 12px -4px oklch(80% 0.135 75 / 0.55);
   }
   .mode-btn.active:hover { color: var(--accent-on); }
+  /* Detect toggle uses the same amber — both modes share the brand colour */
+  .mode-btn.active[data-mode="detect"] {
+    color: var(--accent-on);
+    background: var(--accent);
+    box-shadow: 0 4px 12px -4px oklch(80% 0.135 75 / 0.45);
+  }
+  .mode-btn.active[data-mode="detect"]:hover { color: var(--accent-on); }
+
+  /* "Check for AI" button: ghost treatment — transparent bg, amber outline */
+  #humanizeBtn.detect-active {
+    background: transparent !important;
+    color: var(--accent) !important;
+    border: 1.5px solid var(--accent) !important;
+    box-shadow: none !important;
+  }
+  #humanizeBtn.detect-active:hover {
+    background: var(--accent-dim) !important;
+    transform: translateY(-1px);
+  }
+
+  /* Panel borders in detect mode: subtle amber tint */
+  #outputPanel.detect-mode { border-color: oklch(80% 0.135 75 / 0.45); }
+  #outputPanel.detect-mode #outputDot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  #inputPanel.detect-mode { border-color: oklch(80% 0.135 75 / 0.30); }
+
+  /* Pulsing scan dot on input card in detect mode */
+  @keyframes scanPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.6); }
+  }
+  #inputDot.scanning { animation: scanPulse 1.4s ease-in-out infinite; background: var(--accent) !important; }
 
   /* Empty state tiles inside the textarea container */
   .input-wrap { position: relative; }
@@ -296,8 +342,9 @@
     flex: 1; height: 6px; border-radius: 999px; background: var(--bg-input); overflow: hidden;
   }
   .det-row .det-bar-fill {
+    display: block;
     height: 100%; border-radius: 999px;
-    background: linear-gradient(90deg, oklch(70% 0.16 28), oklch(72% 0.18 28));
+    background: linear-gradient(90deg, hsl(18, 72%, 52%), hsl(14, 76%, 56%));
     width: 0; transition: width 900ms cubic-bezier(.5,.05,.5,.95);
   }
   .det-row .det-num {
@@ -396,26 +443,132 @@
     z-index: 2;
   }
 
-  /* Responsive */
+  /* Hamburger button — base: hidden; shown only in mobile media query below */
+  .hamburger {
+    display: none;
+    flex-direction: column; justify-content: center; align-items: center;
+    gap: 5px; width: 36px; height: 36px;
+    background: transparent; border: 1px solid var(--border);
+    border-radius: 8px; cursor: pointer;
+    transition: border-color 160ms ease, background 160ms ease;
+  }
+  .hamburger:hover { border-color: var(--accent); background: var(--accent-dim); }
+  .hamburger span {
+    display: block; width: 16px; height: 1.5px;
+    background: var(--fg-soft); border-radius: 999px;
+    transition: transform 220ms ease, opacity 220ms ease;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  /* Mobile dropdown menu — base: hidden; opened via .open class */
+  .nav-mobile-menu {
+    display: none;
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: oklch(14% 0.012 60 / 0.97);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 0 16px;
+    z-index: 40;
+  }
+  .nav-mobile-menu a, .nav-mobile-menu button {
+    display: block; width: 100%;
+    padding: 13px 24px;
+    font-size: 15px; font-weight: 500; text-align: left;
+    color: var(--fg-soft); background: transparent; border: none;
+    cursor: pointer; text-decoration: none;
+    transition: color 140ms ease, background 140ms ease;
+  }
+  .nav-mobile-menu a:hover, .nav-mobile-menu button:hover {
+    color: var(--fg); background: var(--bg-elev);
+  }
+  .nav-mobile-menu .menu-divider {
+    height: 1px; background: var(--border); margin: 8px 16px;
+  }
+  .nav-mobile-menu .menu-cta {
+    margin: 10px 16px 0;
+    display: block; width: calc(100% - 32px);
+    padding: 13px 22px; text-align: center;
+    background: var(--accent); color: var(--accent-on);
+    font-weight: 600; border-radius: 10px; font-size: 14px;
+    border: none; cursor: pointer;
+    transition: background 160ms ease;
+  }
+  .nav-mobile-menu .menu-cta:hover { background: var(--accent-hi); }
+
+  /* Responsive — these rules come AFTER the base definitions so they win in cascade */
   @media (max-width: 767px) {
     .hero-headline { font-size: 38px !important; line-height: 1.05 !important; }
     .demo-grid {
       display: grid !important;
       grid-template-columns: 1fr !important;
-      gap: 8px !important;
+      gap: 12px !important;
     }
-    .flow-arrow {
-      min-width: 0; height: 44px;
-      transform: rotate(90deg);
-    }
+    .flow-arrow { min-width: 0; height: 36px; transform: none; }
+    .flow-track { display: none; }
+    .flow-chip { position: static; transform: none; width: 30px; height: 30px; }
+    .flow-chip svg { transform: rotate(90deg); }
     .nav-cta-mobile { display: none; }
+    .hamburger { display: flex; }
+    .nav-mobile-menu.open { display: block; }
   }
   @media (min-width: 768px) {
-    .nav-tagline-mobile { display: none; }
+    .hamburger { display: none !important; }
+    .nav-mobile-menu { display: none !important; }
   }
+
+  /* Trust bar stamped badges */
+  .trust-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: oklch(18% 0.01 60);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 16px;
+    font-size: 13px;
+  }
+  .trust-badge-num {
+    font-family: 'Special Elite', 'Courier New', monospace;
+    font-size: 15px; font-weight: 400;
+    color: var(--fg);
+    letter-spacing: 0.02em;
+  }
+  .trust-badge-label { color: var(--fg-muted); }
+  .trust-badge-detectors {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.03em;
+    color: var(--fg-soft);
+  }
+
+  /* Pricing: featured card pops with scale + extra top padding for the badge */
+  .pricing-featured { transform: scale(1.03); transform-origin: top center; padding-top: 28px !important; }
+  @media (max-width: 767px) { .pricing-featured { transform: none; margin-top: 12px; } }
 
   /* Subtle border accent line under nav */
   .nav-border { border-bottom: 1px solid var(--border-soft); }
+
+  /* Use-case expand tiles */
+  .use-case-card { cursor: pointer; transition: border-color 200ms ease; }
+  .use-case-header { display: flex; flex-direction: column; }
+  .use-case-title-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .use-case-toggle {
+    font-size: 20px; font-weight: 300; color: var(--accent); line-height: 1;
+    transition: transform 220ms ease; flex-shrink: 0;
+  }
+  .use-case-body {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 300ms ease, padding-top 300ms ease;
+    padding-top: 0;
+  }
+  .use-case-card.open .use-case-body { max-height: 150px; padding-top: 10px; }
+  .use-case-card.open .use-case-toggle { transform: rotate(45deg); }
+  @media (min-width: 768px) {
+    .use-case-toggle { display: none; }
+    .use-case-body { max-height: none !important; overflow: visible !important; padding-top: 8px !important; }
+    .use-case-card { cursor: default; }
+  }
 </style>
 </head>
 <body class="bg-grain">
@@ -424,9 +577,24 @@
 <nav id="nav" class="nav-border sticky top-0 z-30 transition-colors">
   <div class="max-w-7xl mx-auto px-6 md:px-8 py-4 flex items-center justify-between">
     <a href="#" class="flex items-center gap-3 group">
-      <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg" style="background: linear-gradient(135deg, var(--accent), oklch(70% 0.14 50)); color: var(--accent-on);">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v13"/><path d="M9 21v-7a3 3 0 0 1 6 0v7"/></svg>
-      </span>
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <!-- Paper strip -->
+        <rect x="12" y="1" width="8" height="8" rx="0.5" fill="var(--accent)" opacity="0.22"/>
+        <line x1="14" y1="3" x2="18" y2="3" stroke="var(--accent)" stroke-width="0.9" opacity="0.55"/>
+        <line x1="14" y1="5.5" x2="17" y2="5.5" stroke="var(--accent)" stroke-width="0.9" opacity="0.4"/>
+        <!-- Platen roller — most recognisable typewriter element -->
+        <rect x="2" y="7" width="28" height="5" rx="2.5" fill="var(--accent)"/>
+        <!-- Body -->
+        <rect x="4" y="13" width="24" height="13" rx="2" fill="var(--accent)" opacity="0.15"/>
+        <rect x="4" y="13" width="24" height="2.5" rx="1" fill="var(--accent)" opacity="0.28"/>
+        <!-- Keys row -->
+        <circle cx="8.5"  cy="19" r="2" fill="var(--accent)" opacity="0.8"/>
+        <circle cx="13.5" cy="19" r="2" fill="var(--accent)" opacity="0.8"/>
+        <circle cx="18.5" cy="19" r="2" fill="var(--accent)" opacity="0.8"/>
+        <circle cx="23.5" cy="19" r="2" fill="var(--accent)" opacity="0.8"/>
+        <!-- Spacebar -->
+        <rect x="9" y="23" width="14" height="2.5" rx="1.25" fill="var(--accent)" opacity="0.5"/>
+      </svg>
       <span class="display text-xl font-bold">HumanizerCo</span>
     </a>
     <div class="flex items-center gap-3 md:gap-5">
@@ -434,7 +602,19 @@
       <a href="#pricing" class="hidden md:block text-sm hover:text-white transition-colors" style="color:var(--fg-muted)">Pricing</a>
       <a href="#" class="hidden md:block text-sm hover:text-white transition-colors" style="color:var(--fg-muted)">Sign in</a>
       <button onclick="scrollToDemo()" class="btn-primary nav-cta-mobile" style="padding:8px 16px;font-size:13px">Try Free</button>
+      <!-- Hamburger (mobile only) -->
+      <button id="hamburgerBtn" class="hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </div>
+  </div>
+  <!-- Mobile dropdown -->
+  <div id="mobileMenu" class="nav-mobile-menu" role="navigation" aria-label="Mobile menu">
+    <a href="#how" onclick="closeMobileMenu()">How it works</a>
+    <a href="#pricing" onclick="closeMobileMenu()">Pricing</a>
+    <div class="menu-divider"></div>
+    <a href="#" onclick="closeMobileMenu()">Sign in</a>
+    <button class="menu-cta" onclick="closeMobileMenu(); scrollToDemo();">Try Free</button>
   </div>
 </nav>
 
@@ -445,10 +625,10 @@
   <div class="text-center mb-7 md:mb-10">
     <div class="reveal flex justify-center mb-4"><span class="tag">✦ Free AI Humanizer</span></div>
     <h1 class="reveal display hero-headline font-bold text-4xl md:text-6xl leading-[1.04] mb-4 max-w-4xl mx-auto">
-      Your writing. <span class="display-italic" style="color:var(--accent)">No AI flags.</span> Free.
+      When everyone sounds like a bot,<br><span class="display-italic" style="color:var(--accent)">sound human.</span>
     </h1>
     <p class="reveal text-base md:text-lg max-w-xl mx-auto leading-relaxed" style="color:var(--fg-muted)">
-      Paste any AI-generated text and get back writing that sounds genuinely, unmistakably <em class="display-italic" style="color:var(--fg-soft)">you</em>.
+      Paste your AI draft below. Get back writing that's 100% undetectable, and unmistakably yours.
     </p>
   </div>
 
@@ -470,11 +650,11 @@
   <div id="demo" class="reveal demo-grid grid md:grid-cols-[1fr_56px_1fr] gap-3 md:gap-3 max-w-6xl mx-auto items-stretch">
 
     <!-- INPUT CARD -->
-    <div class="card p-5 md:p-6">
+    <div id="inputPanel" class="card p-5 md:p-6">
       <div class="flex items-center justify-between mb-4 gap-3">
         <div class="flex items-center gap-2">
-          <span class="inline-block w-1.5 h-1.5 rounded-full" style="background:var(--fg-dim)"></span>
-          <span class="text-xs font-semibold tracking-widest uppercase" style="color:var(--fg-muted)">AI Text</span>
+          <span id="inputDot" class="inline-block w-1.5 h-1.5 rounded-full" style="background:var(--fg-dim)"></span>
+          <span id="inputPanelLabel" class="text-xs font-semibold tracking-widest uppercase" style="color:var(--fg-muted)">AI Text</span>
         </div>
         <span class="score-badge ai">
           <span class="score-dot"></span>
@@ -507,9 +687,11 @@
         </div>
       </div>
 
+      <!-- Typewriter platen line: amber bar that paper feeds through -->
+      <div style="height:3px;border-radius:2px;margin-bottom:6px;background:linear-gradient(90deg, transparent 0%, var(--accent) 15%, var(--accent) 85%, transparent 100%);opacity:0.55"></div>
       <div class="input-wrap">
         <textarea id="inputArea" rows="6" placeholder=" "></textarea>
-        <div id="emptyState" class="empty-state hidden">
+        <div id="emptyState" class="empty-state">
           <button class="empty-tile" id="emptySample" type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
             Try a sample
@@ -544,7 +726,7 @@
       <div class="flex items-center justify-between mb-4 gap-3">
         <div class="flex items-center gap-2">
           <span id="outputDot" class="inline-block w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>
-          <span class="text-xs font-semibold tracking-widest uppercase" style="color:var(--fg-muted)">Human Text</span>
+          <span id="outputPanelLabel" class="text-xs font-semibold tracking-widest uppercase" style="color:var(--fg-muted)">Human Text</span>
         </div>
         <span id="humanBadge" class="score-badge human" style="opacity:0;transition:opacity 300ms ease">
           <span class="score-dot"></span>
@@ -553,7 +735,15 @@
         </span>
       </div>
 
+      <!-- Platen line above output paper -->
+      <div style="height:3px;border-radius:2px;margin-bottom:6px;background:linear-gradient(90deg, transparent 0%, var(--accent) 15%, var(--accent) 85%, transparent 100%);opacity:0.55"></div>
       <div id="outputText" class="output-content"></div>
+
+      <!-- Loading state (shown during API call) -->
+      <div id="loadingState" style="display:none;padding:12px 0">
+        <div class="loading-bar-track"><div id="loadingBarFill" class="loading-bar-fill"></div></div>
+        <p id="loadingLabel" class="loading-label">Analyzing AI patterns_</p>
+      </div>
 
       <!-- Detector result (visible in detector mode) -->
       <div id="detectorResult" class="detector-result">
@@ -579,26 +769,17 @@
         <span id="copyBtnLabel">Copy</span>
       </button>
 
-      <!-- Variant A: Locked copy button shown at bottom after full typing for non-signed-up users -->
-      <button id="copyLocked" class="copy-locked" type="button">
-        <svg id="copyLockedIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-        <span id="copyLockedLabel">Unlock to copy</span>
-      </button>
-
-      <!-- Gate overlay (now a modal — Variant A) -->
+      <!-- Gate overlay (revealed when 65% typed) -->
       <div id="gate" style="display:none">
-        <div class="gate-modal-card">
-          <button type="button" class="gate-close" id="gateClose" aria-label="Close">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          </button>
-          <div class="inline-flex items-center gap-2 mb-2 px-3 py-1 rounded-full text-xs font-semibold" style="background:var(--accent-dim);color:var(--accent)">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4-6.2-4.6-6.2 4.6 2.4-7.4L2 9.4h7.6z"/></svg>
-            Your rewrite is ready
+        <div class="gate-blur-strip"></div>
+        <div class="gate-content">
+          <div class="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold" style="background:var(--accent-dim);color:var(--accent)">
+            ✦ Your rewrite is ready
           </div>
-          <p class="text-sm mb-4 max-w-sm mx-auto" style="color:var(--fg-soft)">Enter your email to copy the result. No credit card needed.</p>
+          <p class="text-sm mb-4 max-w-sm mx-auto" style="color:var(--fg-soft)">See the full result. Free, no credit card.</p>
           <form id="gateForm" class="flex gap-2 max-w-md mx-auto">
             <input type="email" id="gateEmail" placeholder="you@email.com" required />
-            <button type="submit" class="btn-primary">See Result →</button>
+            <button type="submit" class="btn-primary">Unlock →</button>
           </form>
         </div>
       </div>
@@ -609,51 +790,97 @@
 
 <!-- TRUST BAR -->
 <div class="border-t border-b hairline">
-  <div class="max-w-7xl mx-auto px-6 md:px-8 py-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm" style="color:var(--fg-muted)">
-    <span class="flex items-center gap-2">
-      <span class="inline-block w-1.5 h-1.5 rounded-full" style="background:var(--success);box-shadow:0 0 8px var(--success)"></span>
-      <span><span class="font-semibold" style="color:var(--fg)" id="counter">47,319</span> texts humanized today</span>
-    </span>
-    <span class="hidden md:inline" style="color:var(--fg-dim)">·</span>
-    <span class="flex items-center gap-2">
-      <span style="color:var(--accent)">★★★★★</span>
-      <span><span class="font-semibold" style="color:var(--fg)">4.9</span> from 2,400+ users</span>
-    </span>
-    <span class="hidden md:inline" style="color:var(--fg-dim)">·</span>
-    <span>Works with GPTZero · Turnitin · Originality.ai</span>
+  <div class="max-w-7xl mx-auto px-6 md:px-8 py-5 flex flex-wrap items-center justify-center gap-3">
+
+    <!-- Badge 1: Live counter -->
+    <div class="trust-badge">
+      <span class="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:var(--success);box-shadow:0 0 8px var(--success)"></span>
+      <span class="trust-badge-num" id="counter">47,319</span>
+      <span class="trust-badge-label">texts humanized today</span>
+    </div>
+
+    <!-- Badge 2: Star rating -->
+    <div class="trust-badge">
+      <span style="color:var(--accent);letter-spacing:1px">★★★★★</span>
+      <span class="trust-badge-num">4.9</span>
+      <span class="trust-badge-label">/ 5 from 2,400+ writers</span>
+    </div>
+
+    <!-- Badge 3: Detector compatibility -->
+    <div class="trust-badge">
+      <span style="color:var(--accent);font-size:11px;font-weight:700">✓</span>
+      <span class="trust-badge-label">Works on</span>
+      <span class="trust-badge-detectors">GPTZero · Turnitin · Originality.ai</span>
+    </div>
+
   </div>
 </div>
 
 <!-- USE CASES -->
 <section class="max-w-7xl mx-auto px-6 md:px-8 py-20 md:py-28">
-  <div class="max-w-2xl mb-14">
+  <div class="max-w-2xl mb-10 md:mb-14">
     <p class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:var(--accent)">Who it's for</p>
     <h2 class="display text-4xl md:text-5xl font-bold leading-[1.05]">
       Built for writers who want their <span class="display-italic">work to sound like them</span>.
     </h2>
   </div>
 
-  <div class="grid md:grid-cols-3 gap-4 md:gap-5">
-    <article class="card p-7 hover:border-opacity-100 transition-all group" style="transition: border-color 200ms ease">
-      <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-5" style="background:var(--accent-dim);color:var(--accent)">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+  <div class="grid grid-cols-2 gap-3 md:gap-5">
+    <article class="use-case-card card p-4 md:p-7">
+      <div class="use-case-header">
+        <div class="w-9 h-9 md:w-10 md:h-10 rounded-lg flex items-center justify-center mb-3 md:mb-5" style="background:var(--accent-dim);color:var(--accent)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        </div>
+        <div class="use-case-title-row">
+          <h3 class="font-semibold text-sm md:text-lg">Students</h3>
+          <span class="use-case-toggle" aria-hidden="true">+</span>
+        </div>
       </div>
-      <h3 class="font-semibold text-lg mb-2">Students</h3>
-      <p class="text-sm leading-relaxed" style="color:var(--fg-muted)">Research papers, essays, and reports that read as yours, not flagged by Turnitin or GPTZero. Submit with confidence.</p>
+      <div class="use-case-body">
+        <p class="text-xs md:text-sm leading-relaxed" style="color:var(--fg-muted)">Research papers, essays, and reports that read as yours, not flagged by Turnitin or GPTZero. Submit with confidence.</p>
+      </div>
     </article>
-    <article class="card p-7">
-      <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-5" style="background:var(--accent-dim);color:var(--accent)">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+    <article class="use-case-card card p-4 md:p-7">
+      <div class="use-case-header">
+        <div class="w-9 h-9 md:w-10 md:h-10 rounded-lg flex items-center justify-center mb-3 md:mb-5" style="background:var(--accent-dim);color:var(--accent)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+        </div>
+        <div class="use-case-title-row">
+          <h3 class="font-semibold text-sm md:text-lg">Freelance Writers</h3>
+          <span class="use-case-toggle" aria-hidden="true">+</span>
+        </div>
       </div>
-      <h3 class="font-semibold text-lg mb-2">Freelance Writers</h3>
-      <p class="text-sm leading-relaxed" style="color:var(--fg-muted)">Scale your output without losing your voice. Clients can't tell the difference. That's precisely the point.</p>
+      <div class="use-case-body">
+        <p class="text-xs md:text-sm leading-relaxed" style="color:var(--fg-muted)">Scale your output without losing your voice. Clients can't tell the difference. That's precisely the point.</p>
+      </div>
     </article>
-    <article class="card p-7">
-      <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-5" style="background:var(--accent-dim);color:var(--accent)">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-8v18l-18-8z"/><path d="M11 11v8"/></svg>
+    <article class="use-case-card card p-4 md:p-7">
+      <div class="use-case-header">
+        <div class="w-9 h-9 md:w-10 md:h-10 rounded-lg flex items-center justify-center mb-3 md:mb-5" style="background:var(--accent-dim);color:var(--accent)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-8v18l-18-8z"/><path d="M11 11v8"/></svg>
+        </div>
+        <div class="use-case-title-row">
+          <h3 class="font-semibold text-sm md:text-lg">Marketing Teams</h3>
+          <span class="use-case-toggle" aria-hidden="true">+</span>
+        </div>
       </div>
-      <h3 class="font-semibold text-lg mb-2">Marketing Teams</h3>
-      <p class="text-sm leading-relaxed" style="color:var(--fg-muted)">Brand copy that feels written by a human who cares, not a model that doesn't. Authenticity at scale.</p>
+      <div class="use-case-body">
+        <p class="text-xs md:text-sm leading-relaxed" style="color:var(--fg-muted)">Brand copy that feels written by a human who cares, not a model that doesn't. Authenticity at scale.</p>
+      </div>
+    </article>
+    <article class="use-case-card card p-4 md:p-7">
+      <div class="use-case-header">
+        <div class="w-9 h-9 md:w-10 md:h-10 rounded-lg flex items-center justify-center mb-3 md:mb-5" style="background:var(--accent-dim);color:var(--accent)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+        </div>
+        <div class="use-case-title-row">
+          <h3 class="font-semibold text-sm md:text-lg">Content Creators</h3>
+          <span class="use-case-toggle" aria-hidden="true">+</span>
+        </div>
+      </div>
+      <div class="use-case-body">
+        <p class="text-xs md:text-sm leading-relaxed" style="color:var(--fg-muted)">Blog posts, video scripts, and social captions that sound like you wrote every word. Because you did.</p>
+      </div>
     </article>
   </div>
 </section>
@@ -668,18 +895,18 @@
       </h2>
     </div>
     <div class="grid md:grid-cols-3 gap-10 md:gap-12">
-      <div>
-        <div class="display text-5xl font-bold mb-5" style="color:var(--accent)">01</div>
+      <div class="step-item" data-step="1" data-delay="0">
+        <div class="display text-5xl font-bold mb-5 step-num" data-target="1" style="color:var(--accent)">01</div>
         <h3 class="font-semibold text-lg mb-2.5">Paste your text</h3>
         <p class="text-sm leading-relaxed" style="color:var(--fg-muted)">Any AI-generated content: ChatGPT, Claude, Gemini, anything. Up to 1,500 words per pass on the free plan.</p>
       </div>
-      <div>
-        <div class="display text-5xl font-bold mb-5" style="color:var(--accent)">02</div>
+      <div class="step-item" data-step="2" data-delay="160">
+        <div class="display text-5xl font-bold mb-5 step-num" data-target="2" style="color:var(--accent)">02</div>
         <h3 class="font-semibold text-lg mb-2.5">We rewrite it</h3>
         <p class="text-sm leading-relaxed" style="color:var(--fg-muted)">Our model restructures sentences, varies cadence, swaps clinical vocabulary for natural phrasing, and removes telltale rhythm. Seconds.</p>
       </div>
-      <div>
-        <div class="display text-5xl font-bold mb-5" style="color:var(--accent)">03</div>
+      <div class="step-item" data-step="3" data-delay="320">
+        <div class="display text-5xl font-bold mb-5 step-num" data-target="3" style="color:var(--accent)">03</div>
         <h3 class="font-semibold text-lg mb-2.5">Use it, confidently</h3>
         <p class="text-sm leading-relaxed" style="color:var(--fg-muted)">Copy, paste, publish, submit. Zero AI flags on the major detectors. Your voice, your work.</p>
       </div>
@@ -727,39 +954,97 @@
 
 <!-- PRICING -->
 <section id="pricing" class="border-t hairline">
-  <div class="max-w-4xl mx-auto px-6 md:px-8 py-20 md:py-28 text-center">
-    <p class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:var(--accent)">Pricing</p>
-    <h2 class="display text-4xl md:text-5xl font-bold leading-[1.05] mb-3">
-      Start free, <span class="display-italic">forever</span>.
-    </h2>
-    <p class="text-base mb-12 max-w-md mx-auto" style="color:var(--fg-muted)">Try 3 humanizations a day on us. No credit card. Upgrade only when you need more.</p>
+  <div class="max-w-6xl mx-auto px-6 md:px-8 py-20 md:py-28">
+    <div class="text-center mb-12">
+      <p class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:var(--accent)">Pricing</p>
+      <h2 class="display text-4xl md:text-5xl font-bold leading-[1.05] mb-3">
+        No subscription <span class="display-italic">required</span>.
+      </h2>
+      <p class="text-base max-w-md mx-auto" style="color:var(--fg-muted)">Pay only for what you need. No auto-renewals, no lock-in.</p>
+    </div>
 
-    <div class="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto text-left">
-      <div class="card p-7">
-        <p class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:var(--fg-muted)">Free</p>
-        <p class="display text-4xl font-bold mb-1">$0<span class="text-base font-normal" style="color:var(--fg-muted)">/month</span></p>
-        <p class="text-sm mb-6" style="color:var(--fg-muted)">For curious students and casual writers.</p>
-        <ul class="text-sm space-y-2.5 mb-7" style="color:var(--fg-soft)">
-          <li class="flex gap-2"><span style="color:var(--accent)">✓</span> 3 humanizations per day</li>
-          <li class="flex gap-2"><span style="color:var(--accent)">✓</span> Up to 1,500 words per pass</li>
-          <li class="flex gap-2"><span style="color:var(--accent)">✓</span> Works with all major detectors</li>
+    <!-- 3-column card grid -->
+    <div class="grid md:grid-cols-3 gap-4 md:gap-5 items-start">
+
+      <!-- Card 1: Free -->
+      <div class="card p-7 text-left">
+        <p class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:var(--fg-muted)">Free</p>
+        <p class="display text-5xl font-bold mb-1" style="color:var(--fg)">$0</p>
+        <p class="text-sm mb-6 mt-1" style="color:var(--fg-muted)">For a quick test.</p>
+        <ul class="text-sm space-y-3 mb-8" style="color:var(--fg-soft)">
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> 2 humanizations per day</li>
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> Strict 300-word limit per pass</li>
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> Standard speed</li>
         </ul>
-        <button onclick="scrollToDemo()" class="btn-ghost w-full">Start Free</button>
+        <button onclick="scrollToDemo()" class="btn-ghost w-full" style="color:var(--fg-muted);border-color:var(--border-soft)">Current Plan</button>
       </div>
-      <div class="card p-7 relative" style="border-color:var(--accent)">
-        <span class="absolute -top-3 right-6 tag" style="background:var(--accent);color:var(--accent-on);border:none">Most popular</span>
-        <p class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:var(--accent)">Pro</p>
-        <p class="display text-4xl font-bold mb-1">$9<span class="text-base font-normal" style="color:var(--fg-muted)">/month</span></p>
-        <p class="text-sm mb-6" style="color:var(--fg-muted)">For writers who do this for a living.</p>
-        <ul class="text-sm space-y-2.5 mb-7" style="color:var(--fg-soft)">
-          <li class="flex gap-2"><span style="color:var(--accent)">✓</span> Unlimited humanizations</li>
-          <li class="flex gap-2"><span style="color:var(--accent)">✓</span> Up to 10,000 words per pass</li>
-          <li class="flex gap-2"><span style="color:var(--accent)">✓</span> Priority processing</li>
-          <li class="flex gap-2"><span style="color:var(--accent)">✓</span> Tone presets &amp; style memory</li>
+
+      <!-- Card 2: 48-Hour Pass (most popular, scaled up) -->
+      <div class="card p-7 text-left relative pricing-featured" style="border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 24px 48px -12px oklch(80% 0.135 75 / 0.20);">
+        <span class="absolute -top-3.5 left-1/2 -translate-x-1/2 tag" style="background:var(--accent);color:var(--accent-on);border:none;white-space:nowrap">✦ Most Popular</span>
+        <p class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:var(--accent)">48-Hour Pass</p>
+        <div class="flex items-end gap-2 mb-1">
+          <p class="display text-5xl font-bold" style="color:var(--fg)">$4.99</p>
+        </div>
+        <span class="inline-block text-xs font-semibold tracking-wide uppercase px-2 py-0.5 rounded mb-1" style="background:var(--accent-dim);color:var(--accent)">One-time payment</span>
+        <p class="text-sm mb-6 mt-2" style="color:var(--fg-muted)">Perfect for a single essay or project.</p>
+        <ul class="text-sm space-y-3 mb-8" style="color:var(--fg-soft)">
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> Full access for 48 hours</li>
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> Up to 15,000 words total</li>
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> Zero subscription, no hidden fees</li>
         </ul>
-        <button onclick="scrollToDemo()" class="btn-primary w-full">Try free first →</button>
+        <button onclick="scrollToDemo()" class="btn-primary w-full" style="box-shadow:0 8px 28px -8px oklch(80% 0.135 75 / 0.55)">Get 48-Hour Pass</button>
+      </div>
+
+      <!-- Card 3: Pro Monthly -->
+      <div class="card p-7 text-left">
+        <p class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:var(--fg-muted)">Pro Monthly</p>
+        <div class="flex items-end gap-1 mb-1">
+          <p class="display text-5xl font-bold" style="color:var(--fg)">$12.99</p>
+          <span class="text-sm mb-1.5" style="color:var(--fg-muted)">/month</span>
+        </div>
+        <p class="text-sm mb-6 mt-1" style="color:var(--fg-muted)">For freelancers and regular writers.</p>
+        <ul class="text-sm space-y-3 mb-8" style="color:var(--fg-soft)">
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> 100,000 baseline words/month</li>
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> Never run out: pay-as-you-go top-ups</li>
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> Tone presets &amp; style memory</li>
+          <li class="flex gap-2.5"><span style="color:var(--accent)">✓</span> Priority API processing</li>
+        </ul>
+        <button onclick="scrollToDemo()" class="btn-ghost w-full" style="border-color:var(--accent);color:var(--accent)">Subscribe Monthly</button>
+      </div>
+
+    </div><!-- /grid -->
+
+    <!-- Pay-as-you-go add-on banner -->
+    <div class="mt-8 rounded-2xl overflow-hidden" style="border:1px solid var(--accent);box-shadow:0 0 0 1px var(--accent-dim),0 16px 40px -12px oklch(80% 0.135 75 / 0.12)">
+      <!-- Header bar -->
+      <div class="flex items-center gap-3 px-6 py-3" style="background:var(--accent-dim);border-bottom:1px solid oklch(50% 0.10 75 / 0.25)">
+        <span style="color:var(--accent);font-size:13px">✦</span>
+        <span class="text-xs font-semibold tracking-widest uppercase" style="color:var(--accent)">Add-On</span>
+        <span class="text-xs font-semibold tracking-widest uppercase" style="color:var(--fg-dim)">· Pay-as-you-go Word Credits</span>
+      </div>
+      <!-- Body -->
+      <div class="px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4" style="background:oklch(17% 0.012 60)">
+        <div>
+          <p class="font-semibold mb-1" style="color:var(--fg)">Need bulk words without a subscription?</p>
+          <p class="text-sm" style="color:var(--fg-muted)">Add non-expiring word credits anytime — once you create a free account.</p>
+        </div>
+        <div class="flex items-center gap-3 flex-shrink-0">
+          <div class="text-center px-5 py-3 rounded-xl" style="background:var(--bg-card);border:1px solid var(--border)">
+            <span style="font-family:'Special Elite','Courier New',monospace;font-size:22px;color:var(--accent)">$5</span>
+            <p class="text-xs mt-0.5" style="color:var(--fg-muted)">for</p>
+            <span style="font-family:'Special Elite','Courier New',monospace;font-size:16px;color:var(--fg)">50k words</span>
+          </div>
+          <div style="color:var(--fg-dim);font-size:18px">·</div>
+          <div class="text-center px-5 py-3 rounded-xl" style="background:var(--bg-card);border:1px solid var(--border)">
+            <span style="font-family:'Special Elite','Courier New',monospace;font-size:22px;color:var(--accent)">$18</span>
+            <p class="text-xs mt-0.5" style="color:var(--fg-muted)">for</p>
+            <span style="font-family:'Special Elite','Courier New',monospace;font-size:16px;color:var(--fg)">200k words</span>
+          </div>
+        </div>
       </div>
     </div>
+
   </div>
 </section>
 
@@ -830,9 +1115,19 @@
 <footer class="border-t hairline">
   <div class="max-w-7xl mx-auto px-6 md:px-8 py-10 flex flex-col md:flex-row md:items-center justify-between gap-5 text-sm" style="color:var(--fg-muted)">
     <div class="flex items-center gap-3">
-      <span class="inline-flex items-center justify-center w-7 h-7 rounded-md" style="background: linear-gradient(135deg, var(--accent), oklch(70% 0.14 50)); color: var(--accent-on);">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v13"/><path d="M9 21v-7a3 3 0 0 1 6 0v7"/></svg>
-      </span>
+      <svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <rect x="12" y="1" width="8" height="8" rx="0.5" fill="var(--accent)" opacity="0.22"/>
+        <line x1="14" y1="3" x2="18" y2="3" stroke="var(--accent)" stroke-width="0.9" opacity="0.55"/>
+        <line x1="14" y1="5.5" x2="17" y2="5.5" stroke="var(--accent)" stroke-width="0.9" opacity="0.4"/>
+        <rect x="2" y="7" width="28" height="5" rx="2.5" fill="var(--accent)"/>
+        <rect x="4" y="13" width="24" height="13" rx="2" fill="var(--accent)" opacity="0.15"/>
+        <rect x="4" y="13" width="24" height="2.5" rx="1" fill="var(--accent)" opacity="0.28"/>
+        <circle cx="8.5"  cy="19" r="2" fill="var(--accent)" opacity="0.8"/>
+        <circle cx="13.5" cy="19" r="2" fill="var(--accent)" opacity="0.8"/>
+        <circle cx="18.5" cy="19" r="2" fill="var(--accent)" opacity="0.8"/>
+        <circle cx="23.5" cy="19" r="2" fill="var(--accent)" opacity="0.8"/>
+        <rect x="9" y="23" width="14" height="2.5" rx="1.25" fill="var(--accent)" opacity="0.5"/>
+      </svg>
       <span class="display font-bold text-base" style="color:var(--fg)">HumanizerCo</span>
     </div>
     <div class="flex flex-wrap gap-6">
@@ -1023,34 +1318,43 @@
     aiScoreEl.textContent = score + '%';
   });
 
-  function typeIntoOutput(text, speed, blurAt, humanTarget) {
-    clearInterval(outputTimer);
+  function typeIntoOutput(text, _speed, blurAt, humanTarget) {
+    if (outputTimer) { clearTimeout(outputTimer); outputTimer = null; }
     outputArea.textContent = '';
     outputArea.classList.add('typing-cursor');
     copyBtn.style.display = 'none';
-    // Variant A: hide locked copy button while typing
-    const copyLockedEl = document.getElementById('copyLocked');
-    if (copyLockedEl) copyLockedEl.style.display = 'none';
-    let i = 0;
-    // Variant A: always type the full text (ignore blurAt)
-    outputTimer = setInterval(() => {
-      outputArea.textContent += text[i++];
-      const progress = i / text.length;
-      if (humanScoreEl && typeof humanTarget === 'number') {
-        humanScoreEl.textContent = Math.round(humanTarget * progress) + '%';
-      }
-      if (i >= text.length) {
-        clearInterval(outputTimer);
-        outputArea.classList.remove('typing-cursor');
-        humanBadge.style.opacity = '1';
-        if (signedUp) {
-          copyBtn.style.display = 'inline-flex';
-        } else {
-          // Variant A: show locked copy button instead of inline gate
-          if (copyLockedEl) copyLockedEl.style.display = 'inline-flex';
+    const blurIndex = Math.floor(text.length * blurAt);
+    const stopAt = signedUp ? text.length : blurIndex;
+
+    function scheduleChar(i) {
+      const prevChar = i > 0 ? text[i - 1] : '';
+      const isSentenceEnd = '.!?'.includes(prevChar);
+      const isPunct = ',;:'.includes(prevChar);
+      let delay = 15 + Math.random() * 25;
+      if (isPunct) delay += 60 + Math.random() * 60;
+      if (isSentenceEnd) delay += 80 + Math.random() * 100;
+      outputTimer = setTimeout(() => {
+        outputArea.textContent += text[i];
+        const progress = (i + 1) / text.length;
+        if (humanScoreEl && typeof humanTarget === 'number') {
+          humanScoreEl.textContent = Math.round(humanTarget * progress) + '%';
         }
-      }
-    }, speed);
+        if (i + 1 < stopAt) {
+          scheduleChar(i + 1);
+        } else {
+          outputTimer = null;
+          outputArea.classList.remove('typing-cursor');
+          if (!signedUp) {
+            setTimeout(() => { gateEl.style.display = 'block'; }, 200);
+          } else {
+            copyBtn.style.display = 'inline-flex';
+          }
+          humanBadge.style.opacity = '1';
+        }
+      }, delay);
+    }
+
+    if (text.length > 0) scheduleChar(0);
   }
 
   // ===== INTERACTIONS =====
@@ -1066,13 +1370,16 @@
     gateEl.style.display = 'none';
     gateEl.style.opacity = '1';
     if (copyBtn) copyBtn.style.display = 'none';
-    const _cl = document.getElementById('copyLocked');
-    if (_cl) _cl.style.display = 'none';
     // Reset AI score and animate as input types
     aiScoreEl.textContent = '0%';
     const targetAI = samples[key].aiScore;
     typeIntoTextarea(samples[key].input, 6, () => {
       btn.classList.remove('pulse'); void btn.offsetWidth; btn.classList.add('pulse');
+      setTimeout(() => {
+        if (currentMode === 'humanize' && !outputArea.textContent.trim()) {
+          btn.click();
+        }
+      }, 1200);
     }, (progress) => {
       aiScoreEl.textContent = Math.round(targetAI * progress) + '%';
     });
@@ -1133,6 +1440,10 @@
   const meterNum = document.getElementById('meterNum');
   const detectorVerdict = document.getElementById('detectorVerdict');
   const switchToHumanize = document.getElementById('switchToHumanize');
+  const inputPanel = document.getElementById('inputPanel');
+  const inputDot = document.getElementById('inputDot');
+  const inputPanelLabel = document.getElementById('inputPanelLabel');
+  const outputPanelLabel = document.getElementById('outputPanelLabel');
 
   document.querySelectorAll('.mode-btn').forEach(b => {
     b.addEventListener('click', () => switchMode(b.dataset.mode));
@@ -1146,14 +1457,22 @@
       b.classList.toggle('active', active);
       b.setAttribute('aria-selected', active ? 'true' : 'false');
     });
-    if (mode === 'detect') {
+    const isDetect = mode === 'detect';
+    // Panel border + dot colors
+    outputPanel.classList.toggle('detect-mode', isDetect);
+    inputPanel.classList.toggle('detect-mode', isDetect);
+    inputDot.classList.toggle('scanning', isDetect);
+    // Button color
+    btn.classList.toggle('detect-active', isDetect);
+    // Header labels
+    inputPanelLabel.textContent = isDetect ? 'Scan Text' : 'AI Text';
+    outputPanelLabel.textContent = isDetect ? 'Detector Results' : 'Human Text';
+    if (isDetect) {
       detectorResult.classList.add('is-active');
       outputArea.style.display = 'none';
       humanBadge.style.opacity = '0';
       gateEl.style.display = 'none';
       copyBtn.style.display = 'none';
-      const _cl2 = document.getElementById('copyLocked');
-      if (_cl2) _cl2.style.display = 'none';
       humanizeBtnLabel.textContent = 'Check for AI';
     } else {
       detectorResult.classList.remove('is-active');
@@ -1182,7 +1501,7 @@
       const eased = 1 - Math.pow(1 - t, 2);
       meterNum.textContent = Math.round(startVal + (avg - startVal) * eased) + '%';
       // Color shifts based on score
-      const c = avg > 60 ? 'oklch(72% 0.18 28)' : avg > 30 ? 'oklch(78% 0.14 75)' : 'oklch(72% 0.15 145)';
+      const c = avg > 60 ? 'hsl(14, 76%, 56%)' : avg > 30 ? 'hsl(38, 80%, 58%)' : 'hsl(142, 45%, 52%)';
       meterNum.style.color = c;
       if (t < 1) requestAnimationFrame(step);
     };
@@ -1196,10 +1515,10 @@
         if (num) num.textContent = val + '%';
         if (fill) {
           fill.style.background = val > 60
-            ? 'linear-gradient(90deg, oklch(70% 0.16 28), oklch(72% 0.18 28))'
+            ? 'linear-gradient(90deg, hsl(18, 72%, 52%), hsl(14, 76%, 56%))'
             : val > 30
-            ? 'linear-gradient(90deg, oklch(76% 0.14 75), oklch(80% 0.14 75))'
-            : 'linear-gradient(90deg, oklch(70% 0.14 145), oklch(72% 0.15 145))';
+            ? 'linear-gradient(90deg, hsl(36, 75%, 54%), hsl(38, 80%, 58%))'
+            : 'linear-gradient(90deg, hsl(140, 44%, 48%), hsl(142, 45%, 52%))';
         }
       }, 200 + i * 180);
     });
@@ -1209,9 +1528,9 @@
       : avg > 40
       ? 'Mixed signals. Some detectors will flag it.'
       : 'Reads as genuinely human. You should be fine.';
-    detectorVerdict.style.background = avg > 60 ? 'oklch(30% 0.10 28 / 0.20)' : avg > 30 ? 'oklch(30% 0.06 75 / 0.30)' : 'oklch(30% 0.08 145 / 0.25)';
-    detectorVerdict.style.color = avg > 60 ? 'oklch(78% 0.14 28)' : avg > 30 ? 'oklch(82% 0.13 75)' : 'oklch(78% 0.14 145)';
-    detectorVerdict.style.borderColor = avg > 60 ? 'oklch(50% 0.14 28 / 0.30)' : avg > 30 ? 'oklch(50% 0.10 75 / 0.30)' : 'oklch(50% 0.12 145 / 0.30)';
+    detectorVerdict.style.background = avg > 60 ? 'hsla(14, 60%, 22%, 0.35)' : avg > 30 ? 'hsla(36, 55%, 22%, 0.35)' : 'hsla(140, 40%, 18%, 0.35)';
+    detectorVerdict.style.color = avg > 60 ? 'hsl(14, 70%, 64%)' : avg > 30 ? 'hsl(38, 75%, 62%)' : 'hsl(142, 44%, 58%)';
+    detectorVerdict.style.borderColor = avg > 60 ? 'hsla(14, 65%, 45%, 0.35)' : avg > 30 ? 'hsla(36, 60%, 45%, 0.35)' : 'hsla(140, 45%, 40%, 0.35)';
     switchToHumanize.style.display = avg > 50 ? 'inline-flex' : 'none';
   }
 
@@ -1239,16 +1558,8 @@
   });
   emptyPaste.addEventListener('click', () => pasteBtn.click());
 
-  copyBtn.addEventListener('click', async (e) => {
-    // Variant A: if not signed up, open modal gate instead of copying
-    if (!signedUp) {
-      e.preventDefault();
-      gateEl.style.display = 'flex';
-      const emailEl = document.getElementById('gateEmail');
-      setTimeout(() => emailEl && emailEl.focus(), 80);
-      return;
-    }
-    const txt = lastHumanizedText || outputArea.textContent;
+  copyBtn.addEventListener('click', async () => {
+    const txt = signedUp ? lastHumanizedText : outputArea.textContent;
     if (!txt) return;
     try {
       await navigator.clipboard.writeText(txt);
@@ -1261,27 +1572,6 @@
     } catch (err) {
       showToastMsg('Could not copy', false);
     }
-  });
-
-  // Variant A: locked copy button — opens the modal gate
-  const copyLockedBtn = document.getElementById('copyLocked');
-  if (copyLockedBtn) {
-    copyLockedBtn.addEventListener('click', () => {
-      gateEl.style.display = 'flex';
-      const emailEl = document.getElementById('gateEmail');
-      setTimeout(() => emailEl && emailEl.focus(), 80);
-    });
-  }
-  // Variant A: gate close button
-  const gateCloseBtn = document.getElementById('gateClose');
-  if (gateCloseBtn) {
-    gateCloseBtn.addEventListener('click', () => {
-      gateEl.style.display = 'none';
-    });
-  }
-  // Click outside modal card closes it
-  gateEl.addEventListener('click', (e) => {
-    if (e.target === gateEl) gateEl.style.display = 'none';
   });
 
   function runHumanizeOutput(outputText, targetHumanScore) {
@@ -1336,6 +1626,19 @@
     }
   }
 
+  const loadingPhrases = [
+    'Analyzing AI patterns_',
+    'Removing tells_',
+    'Adjusting sentence rhythm_',
+    'Adding human variation_',
+    'Almost done_',
+  ];
+  let loadingPhraseIdx = 0;
+  let loadingPhraseTimer = null;
+  const loadingStateEl = document.getElementById('loadingState');
+  const loadingBarFill = document.getElementById('loadingBarFill');
+  const loadingLabelEl = document.getElementById('loadingLabel');
+
   function setLoading(loading, label) {
     isLoading = loading;
     btn.disabled = loading;
@@ -1343,45 +1646,59 @@
     btn.style.cursor = loading ? 'wait' : '';
     if (loading && label) humanizeBtnLabel.textContent = label;
     else humanizeBtnLabel.textContent = currentMode === 'detect' ? 'Check for AI' : 'Humanize Text';
+
+    if (loading) {
+      outputArea.style.display = 'none';
+      loadingStateEl.style.display = 'block';
+      // Reset and kick off progress bar
+      loadingBarFill.style.transition = 'none';
+      loadingBarFill.style.width = '0';
+      void loadingBarFill.offsetWidth;
+      loadingBarFill.style.transition = 'width 8s ease-out';
+      loadingBarFill.style.width = '85%';
+      // Cycle phrases
+      loadingPhraseIdx = 0;
+      loadingLabelEl.textContent = loadingPhrases[0];
+      loadingPhraseTimer = setInterval(() => {
+        loadingPhraseIdx = (loadingPhraseIdx + 1) % loadingPhrases.length;
+        loadingLabelEl.textContent = loadingPhrases[loadingPhraseIdx];
+      }, 2000);
+    } else {
+      clearInterval(loadingPhraseTimer);
+      loadingBarFill.style.transition = 'width 200ms ease';
+      loadingBarFill.style.width = '100%';
+      setTimeout(() => {
+        loadingStateEl.style.display = 'none';
+        outputArea.style.display = '';
+      }, 200);
+    }
   }
 
-  // Gate form submit — Variant A: dismiss modal, auto-copy, swap locked button for normal copy state
-  document.getElementById('gateForm').addEventListener('submit', async (e) => {
+  // Gate form submit
+  document.getElementById('gateForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const email = document.getElementById('gateEmail').value;
     if (!email) return;
-    try { localStorage.setItem('humanizerco_email', email); } catch (e) {}
     signedUp = true;
+    try { localStorage.setItem('humanizerco_email', email); } catch (_) {}
     gateEl.style.transition = 'opacity 300ms ease';
     gateEl.style.opacity = '0';
-    setTimeout(async () => {
+    setTimeout(() => {
       gateEl.style.display = 'none';
-      gateEl.style.opacity = '1';
       const fullText = lastHumanizedText || (currentSample ? samples[currentSample].output : '');
-      // Hide the locked button now that we're signed up
-      const _cl = document.getElementById('copyLocked');
-      if (_cl) _cl.style.display = 'none';
-      // Auto-copy
-      let copied = false;
-      if (fullText) {
-        try {
-          await navigator.clipboard.writeText(fullText);
-          copied = true;
-        } catch (err) { /* clipboard unavailable */ }
-      }
-      // Show normal copy button in its 'Copied' state, then revert
-      copyBtn.style.display = 'inline-flex';
-      if (copied) {
-        copyBtn.classList.add('copied');
-        copyBtnLabel.textContent = 'Copied';
-        showToastMsg('Copied to clipboard', true);
-        setTimeout(() => {
-          copyBtn.classList.remove('copied');
-          copyBtnLabel.textContent = 'Copy';
-        }, 1800);
-      } else {
-        showToast();
-      }
+      if (!fullText) return;
+      const currentLen = outputArea.textContent.length;
+      let i = currentLen;
+      outputArea.classList.add('typing-cursor');
+      outputTimer = setInterval(() => {
+        outputArea.textContent += fullText[i++];
+        if (i >= fullText.length) {
+          clearInterval(outputTimer);
+          outputArea.classList.remove('typing-cursor');
+          copyBtn.style.display = 'inline-flex';
+          showToast();
+        }
+      }, 12);
     }, 300);
   });
 
@@ -1404,6 +1721,26 @@
   }
   window.scrollToDemo = scrollToDemo;
 
+  // ===== HAMBURGER MENU =====
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  function closeMobileMenu() {
+    hamburgerBtn.classList.remove('open');
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    mobileMenu.classList.remove('open');
+  }
+  window.closeMobileMenu = closeMobileMenu;
+  hamburgerBtn.addEventListener('click', () => {
+    const isOpen = mobileMenu.classList.toggle('open');
+    hamburgerBtn.classList.toggle('open', isOpen);
+    hamburgerBtn.setAttribute('aria-expanded', String(isOpen));
+  });
+  // Close menu on scroll or outside click
+  window.addEventListener('scroll', closeMobileMenu, { passive: true });
+  document.addEventListener('click', (e) => {
+    if (!navEl.contains(e.target)) closeMobileMenu();
+  });
+
   // ===== LIVE COUNTER =====
   let counterVal = 47293;
   const counterEl = document.getElementById('counter');
@@ -1420,11 +1757,56 @@
 
   // ===== REVEAL ON LOAD =====
   window.addEventListener('load', () => {
+    // Return-visitor email pre-fill
+    try {
+      const saved = localStorage.getItem('humanizerco_email');
+      if (saved) {
+        document.querySelectorAll('input[type="email"]').forEach(el => { el.value = saved; });
+        signedUp = true;
+      }
+    } catch (_) {}
+
     document.querySelectorAll('.reveal').forEach((el, i) => {
       setTimeout(() => el.classList.add('in'), 80 + i * 90);
     });
-    // Auto-load Academic sample after reveals
-    setTimeout(() => loadSample('academic'), 1100);
+    // Show empty-state tiles on load so user sees the two choice buttons
+    updateEmptyState();
+  });
+
+  // ===== HOW IT WORKS: SCROLL-TRIGGERED STEP ANIMATION =====
+  const stepItems = document.querySelectorAll('.step-item');
+  const stepObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      const delay = parseInt(el.dataset.delay || '0');
+      setTimeout(() => {
+        el.classList.add('in');
+        // Count-up animation on the step number
+        const numEl = el.querySelector('.step-num');
+        if (numEl) {
+          const target = parseInt(numEl.dataset.target);
+          let cur = 0;
+          const total = 6; // steps from 0 → target
+          const interval = setInterval(() => {
+            cur++;
+            numEl.textContent = String(cur).padStart(2, '0');
+            if (cur >= target) clearInterval(interval);
+          }, 60);
+        }
+      }, delay);
+      stepObserver.unobserve(el);
+    });
+  }, { threshold: 0.25, rootMargin: '0px 0px -40px 0px' });
+
+  stepItems.forEach(el => stepObserver.observe(el));
+
+  // ===== USE CASE EXPAND (mobile only) =====
+  document.querySelectorAll('.use-case-card').forEach(card => {
+    card.addEventListener('click', () => {
+      if (window.innerWidth >= 768) return;
+      card.classList.toggle('open');
+    });
   });
 </script>
 </body>
