@@ -68,27 +68,16 @@ What it's built with:
 
 The humanization itself is simulated for the demo. Each sample pill has a hardcoded "before" and "after" pair, and the output panel types out the after text character by character.
 
-**Production API (Gemini 2.5 Flash):** In a live product, the simulated output would be replaced by a call to **Google Gemini 2.5 Flash** (`gemini-2.5-flash-preview-05-20`). The request flow:
+**API (Gemini 2.5 Flash):** The humanizer is fully wired to a live backend even in the demo. When a user pastes their own text and clicks Humanize, the page calls a Node/Express server (`/api/humanize`) which forwards the request to **Google Gemini 2.5 Flash**. Sample pills use hardcoded before/after pairs so the page works instantly without a round-trip, but any real user text goes through the model. The server request:
 
 ```
-POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent
-Authorization: Bearer {GEMINI_API_KEY}
-Content-Type: application/json
-
-{
-  "contents": [{
-    "parts": [{
-      "text": "Rewrite the following text so it reads as naturally human-written, avoiding AI detection patterns. Preserve the original meaning and approximate length. Return only the rewritten text.\n\n{user_input}"
-    }]
-  }],
-  "generationConfig": {
-    "temperature": 1.0,
-    "topP": 0.95,
-    "maxOutputTokens": 2048
-  }
-}
+POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+  systemInstruction: rules for human-sounding output (no AI clichés,
+                     vary sentence rhythm, no em-dashes, output text only)
+  contents: [{ role: "user", parts: [{ text: "Rewrite this text:\n\n{input}" }] }]
+  generationConfig: { temperature: 0.9, topP: 0.95, maxOutputTokens: 2048 }
 ```
 
-Gemini 2.5 Flash was chosen for this role because of its sub-second median latency (critical for the live-typing illusion), its 1M-token context window (handles any realistic paste), and its cost profile relative to GPT-4o for high-volume consumer traffic. The response streams via SSE, and the client-side typing state machine consumes the stream token by token to maintain the same character-by-character animation the demo already uses.
+Gemini 2.5 Flash was chosen for this role because of its sub-second median latency (critical for the live-typing illusion), its 1M-token context window (handles any realistic paste), and its cost profile relative to GPT-4o for high-volume consumer traffic. The client-side typing state machine receives the completed response and plays it out character by character to maintain the same animation the sample demos use. A client-side rule-based fallback fires automatically if the API is unreachable.
 
 **Hosting:** The page is deployed on **Railway**. Static-site deploy, automatic HTTPS, and the build process is essentially "serve this HTML file." Total cold-start time is effectively zero because there's nothing to start.
