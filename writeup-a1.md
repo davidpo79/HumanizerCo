@@ -50,6 +50,10 @@ The headline starts with "When everyone sounds like a bot" rather than leading w
 
 The gate CTA says "See the full result. No credit card needed." rather than something like "Sign up free" or "Get started." Generic CTAs get skipped. Specific ones, where you name what the person gets and what they don't have to sacrifice, tend to convert better.
 
+## Mobile-first experience
+
+The page is designed mobile-first. The majority of cold search traffic arrives on a phone, and the conversion mechanics were built with that in mind: the two-panel layout stacks vertically on small screens so the output appears directly below the input without horizontal scrolling; the gate overlay fills the full panel on mobile so it never clips or overlaps the header; the Copy button is positioned within thumb reach; and the email input field is sized to trigger the correct keyboard on iOS and Android. The sticky nav stays minimal so it doesn't eat screen real estate on small viewports. Responsive breakpoints are handled with Tailwind's `md:` prefix throughout, with the mobile layout as the base and desktop as the enhancement.
+
 ## What I left out
 
 No interstitial popups, no testimonial carousels, no three-column feature grids with emoji icons. Pricing lives below the fold because at this stage the sale is an email address, not a subscription. The Pro plan is on the page so people know an upgrade path exists, but the page never pushes it.
