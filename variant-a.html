@@ -39,13 +39,15 @@
   }
 
   * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; overflow-x: hidden; max-width: 100vw; }
   body {
     background: var(--bg);
     color: var(--fg);
     font-family: 'DM Sans', -apple-system, sans-serif;
     font-feature-settings: "ss01", "cv11";
     overflow-x: hidden;
+    max-width: 100vw;
+    position: relative;
   }
   .display { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; letter-spacing: -0.022em; }
   .display-italic { font-family: 'Fraunces', Georgia, serif; font-style: italic; font-weight: 500; }
