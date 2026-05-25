@@ -1559,10 +1559,13 @@
       humanBadge.style.opacity = '0';
       gateEl.style.display = 'none';
       copyBtn.style.display = 'none';
+      if (aiProbWidget) aiProbWidget.style.display = 'none'; // VARIANT C: hide meter in detect mode
       humanizeBtnLabel.textContent = 'Check for AI';
     } else {
       detectorResult.classList.remove('is-active');
       outputArea.style.display = '';
+      // VARIANT C: restore meter if we have humanized output
+      if (aiProbWidget && lastHumanizedText) aiProbWidget.style.display = 'block';
       humanizeBtnLabel.textContent = 'Humanize Text';
     }
   }
