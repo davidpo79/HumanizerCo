@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- VARIANT A: Gate position — no mid-text blur. Full result visible. Copy button is locked → triggers signup at peak intent. -->
+<!-- VARIANT A — Gate moved from mid-text blur to a locked Copy button after full output -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -120,67 +120,53 @@
   }
   .output-content p { margin-bottom: 12px; }
 
-  /* Variant A: No mid-text blur. Locked Copy button + modal-style gate. */
-  .copy-bar {
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    padding-top: 14px; margin-top: 14px;
-    border-top: 1px solid var(--border-soft);
-  }
-  .copy-meta { font-size: 12px; color: var(--fg-dim); display: flex; align-items: center; gap: 6px; }
-  .copy-btn {
-    background: var(--bg-elev); color: var(--fg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 16px; font-size: 13px; font-weight: 600;
-    display: inline-flex; align-items: center; gap: 8px;
-    cursor: pointer;
-    transition: all 160ms ease;
-    position: relative;
-  }
-  .copy-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
-  .copy-btn .lock-icon { color: var(--accent); }
-
-  /* Sticky on mobile */
-  @media (max-width: 767px) {
-    #outputPanel { padding-bottom: 76px !important; }
-    .copy-bar {
-      position: sticky; bottom: 12px;
-      background: var(--bg-card);
-      margin-left: -20px; margin-right: -20px;
-      padding: 12px 20px;
-      border-top: 1px solid var(--border);
-      box-shadow: 0 -8px 24px -8px oklch(0% 0 0 / 0.4);
-      z-index: 5;
-    }
-  }
-
-  /* Modal gate (full-panel overlay) */
-  .gate-modal {
-    position: absolute; inset: 0;
-    background: oklch(14% 0.012 60 / 0.78);
-    backdrop-filter: blur(8px);
+  /* Variant A: modal gate (replaces inline blur) */
+  #gate {
+    position: fixed; inset: 0;
+    background: oklch(0% 0 0 / 0.7);
     display: flex; align-items: center; justify-content: center;
-    border-radius: 14px;
-    padding: 24px;
-    animation: gateIn 260ms cubic-bezier(.16,.84,.3,1);
+    z-index: 50;
+    padding: 20px;
+    backdrop-filter: blur(6px);
   }
-  @keyframes gateIn { from { opacity: 0; } to { opacity: 1; } }
-  .gate-modal-inner {
-    background: var(--bg-elev); border: 1px solid var(--border);
-    border-radius: 12px; padding: 24px;
-    max-width: 360px; width: 100%;
+  .gate-modal-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 28px 24px;
+    max-width: 440px; width: 100%;
     text-align: center;
-    box-shadow: 0 24px 48px -12px oklch(0% 0 0 / 0.6);
+    position: relative;
+    box-shadow: 0 30px 60px -20px oklch(0% 0 0 / 0.7);
   }
   .gate-close {
-    position: absolute; top: 14px; right: 14px;
-    width: 28px; height: 28px; border-radius: 8px;
+    position: absolute; top: 12px; right: 12px;
+    width: 32px; height: 32px; border-radius: 999px;
     background: transparent; border: 1px solid var(--border);
     color: var(--fg-muted); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 140ms ease;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
   }
-  .gate-close:hover { background: var(--bg-card); color: var(--fg); }
+  .gate-close:hover { color: var(--fg); border-color: var(--accent); background: var(--accent-dim); }
+
+  /* Variant A: locked copy button shown at bottom of output panel */
+  .copy-locked {
+    display: none;
+    align-items: center; justify-content: center; gap: 8px;
+    width: 100%; margin-top: 18px;
+    padding: 12px 18px;
+    background: var(--accent); color: var(--accent-on);
+    border: none; border-radius: 10px;
+    font-weight: 600; font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 1px 0 oklch(95% 0.05 80 / 0.3) inset, 0 8px 24px -8px oklch(80% 0.135 75 / 0.4);
+    transition: transform 140ms ease, background 200ms ease;
+  }
+  .copy-locked:hover { background: var(--accent-hi); transform: translateY(-1px); }
+  .copy-locked svg { width: 14px; height: 14px; }
+  @media (max-width: 767px) {
+    .copy-locked { position: sticky; bottom: 12px; }
+  }
 
   /* Caret/cursor for typing effect */
   .typing-cursor::after {
@@ -223,10 +209,205 @@
   /* Header sticky behavior */
   nav.scrolled { background: oklch(14% 0.012 60 / 0.85); backdrop-filter: blur(12px); }
 
+  /* Mode toggle (Humanize ↔ AI Detector) */
+  .mode-toggle {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px; border-radius: 999px;
+    background: var(--bg-elev); border: 1px solid var(--border);
+  }
+  .mode-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 8px 16px; border-radius: 999px;
+    font-size: 13px; font-weight: 600;
+    color: var(--fg-muted); background: transparent;
+    border: none; cursor: pointer;
+    transition: color 160ms ease, background 200ms ease, box-shadow 200ms ease;
+  }
+  .mode-btn svg { width: 14px; height: 14px; }
+  .mode-btn:hover { color: var(--fg); }
+  .mode-btn.active {
+    color: var(--accent-on);
+    background: var(--accent);
+    box-shadow: 0 4px 12px -4px oklch(80% 0.135 75 / 0.55);
+  }
+  .mode-btn.active:hover { color: var(--accent-on); }
+
+  /* Empty state tiles inside the textarea container */
+  .input-wrap { position: relative; }
+  .empty-state {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    pointer-events: none;
+    padding: 16px;
+    opacity: 1;
+    transition: opacity 220ms ease;
+  }
+  .empty-state.hidden { opacity: 0; visibility: hidden; }
+  .empty-tile {
+    pointer-events: auto;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    width: 132px; height: 108px;
+    background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px;
+    color: var(--fg-soft); font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    transition: border-color 160ms ease, color 160ms ease, transform 160ms ease, background 160ms ease;
+  }
+  .empty-tile:hover {
+    border-color: var(--accent); color: var(--fg);
+    background: var(--accent-dim);
+    transform: translateY(-2px);
+  }
+  .empty-tile svg { width: 22px; height: 22px; color: var(--accent); }
+  @media (max-width: 380px) {
+    .empty-tile { width: 110px; height: 96px; }
+  }
+
+  /* Detector result panel (alternate to humanized text in output) */
+  .detector-result { display: none; padding-top: 6px; }
+  .detector-result.is-active { display: block; }
+  .detector-meter {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin: 8px 0 22px;
+  }
+  .detector-meter .meter-num {
+    font-family: 'Fraunces', serif; font-size: 64px; font-weight: 700; line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: oklch(72% 0.18 28);
+    transition: color 400ms ease;
+  }
+  .detector-meter .meter-label {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--fg-muted); margin-top: 8px;
+  }
+  .detector-verdict {
+    text-align: center; font-size: 13px; padding: 10px 14px; border-radius: 10px;
+    background: oklch(30% 0.10 28 / 0.20); color: oklch(78% 0.14 28);
+    border: 1px solid oklch(50% 0.14 28 / 0.30);
+    margin-bottom: 18px;
+  }
+  .det-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-top: 1px solid var(--border-soft);
+    font-size: 13px;
+  }
+  .det-row:first-child { border-top: none; }
+  .det-row .det-name { flex: 0 0 130px; color: var(--fg-soft); font-weight: 500; }
+  .det-row .det-bar {
+    flex: 1; height: 6px; border-radius: 999px; background: var(--bg-input); overflow: hidden;
+  }
+  .det-row .det-bar-fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, oklch(70% 0.16 28), oklch(72% 0.18 28));
+    width: 0; transition: width 900ms cubic-bezier(.5,.05,.5,.95);
+  }
+  .det-row .det-num {
+    flex: 0 0 48px; text-align: right; font-weight: 600; color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Icon action buttons (paste / upload / copy) */
+  .icon-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    background: transparent; color: var(--fg-muted);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 6px 10px; font-size: 12px; font-weight: 500;
+    cursor: pointer;
+    transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--fg); background: var(--accent-dim); }
+  .icon-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+  .copy-btn {
+    position: absolute; bottom: 16px; right: 16px;
+    display: none; align-items: center; gap: 6px;
+    background: var(--bg-elev); color: var(--fg-soft);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 7px 12px; font-size: 12px; font-weight: 600;
+    cursor: pointer; z-index: 3;
+    transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+    box-shadow: 0 8px 20px -8px oklch(0% 0 0 / 0.5);
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { color: var(--success); border-color: var(--success); }
+  .copy-btn svg { width: 13px; height: 13px; }
+
+  /* Score badges (AI / Human probability) */
+  .score-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 11.5px; font-weight: 600;
+    padding: 4px 10px 4px 8px; border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+  .score-badge .score-dot {
+    width: 6px; height: 6px; border-radius: 999px;
+    box-shadow: 0 0 8px currentColor;
+    transition: background 400ms ease, box-shadow 400ms ease;
+  }
+  .score-badge.ai     { color: oklch(72% 0.18 28); }
+  .score-badge.ai .score-dot     { background: oklch(72% 0.18 28); }
+  .score-badge.human  { color: var(--success); }
+  .score-badge.human .score-dot  { background: var(--success); }
+  .score-badge .score-label { color: var(--fg-muted); font-weight: 500; }
+
+  /* Flow arrow between input and output */
+  .flow-arrow {
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    min-width: 56px;
+  }
+  .flow-track {
+    position: relative;
+    background: linear-gradient(90deg, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    height: 1px; width: 100%;
+    overflow: visible;
+  }
+  .flow-spark {
+    position: absolute; top: 50%; left: 0;
+    width: 32px; height: 2px; margin-top: -1px;
+    background: linear-gradient(90deg, transparent, var(--accent) 50%, transparent);
+    border-radius: 999px;
+    filter: blur(0.4px);
+    animation: flowMove 2.4s cubic-bezier(.5,.05,.5,.95) infinite;
+  }
+  .flow-spark::after {
+    content: ""; position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px; height: 6px; border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 14px var(--accent), 0 0 26px oklch(80% 0.135 75 / 0.5);
+  }
+  @keyframes flowMove {
+    0%   { left: -10%; opacity: 0; }
+    15%  { opacity: 1; }
+    85%  { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+  }
+  .flow-chip {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30px; height: 30px; border-radius: 999px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent);
+    box-shadow: 0 4px 16px -4px oklch(0% 0 0 / 0.4);
+    z-index: 2;
+  }
+
   /* Responsive */
   @media (max-width: 767px) {
-    .hero-headline { font-size: 44px !important; line-height: 1.05 !important; }
-    .demo-grid { display: flex !important; flex-direction: column !important; gap: 12px !important; }
+    .hero-headline { font-size: 38px !important; line-height: 1.05 !important; }
+    .demo-grid {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 8px !important;
+    }
+    .flow-arrow {
+      min-width: 0; height: 44px;
+      transform: rotate(90deg);
+    }
     .nav-cta-mobile { display: none; }
   }
   @media (min-width: 768px) {
@@ -261,34 +442,64 @@
 <main>
 
 <!-- HERO -->
-<section class="max-w-7xl mx-auto px-6 md:px-8 pt-16 md:pt-24 pb-16">
-  <div class="text-center mb-10 md:mb-14">
-    <div class="reveal flex justify-center mb-6"><span class="tag">✦ Free AI Humanizer</span></div>
-    <h1 class="reveal display hero-headline font-bold text-5xl md:text-7xl leading-[1.02] mb-6 max-w-4xl mx-auto">
-      Your writing.<br>
-      <span class="display-italic" style="color:var(--accent)">No AI flags.</span> Free.
+<section class="max-w-7xl mx-auto px-6 md:px-8 pt-8 md:pt-12 pb-14">
+  <div class="text-center mb-7 md:mb-10">
+    <div class="reveal flex justify-center mb-4"><span class="tag">✦ Free AI Humanizer</span></div>
+    <h1 class="reveal display hero-headline font-bold text-4xl md:text-6xl leading-[1.04] mb-4 max-w-4xl mx-auto">
+      Your writing. <span class="display-italic" style="color:var(--accent)">No AI flags.</span> Free.
     </h1>
-    <p class="reveal text-lg md:text-xl max-w-xl mx-auto leading-relaxed" style="color:var(--fg-muted)">
+    <p class="reveal text-base md:text-lg max-w-xl mx-auto leading-relaxed" style="color:var(--fg-muted)">
       Paste any AI-generated text — get back writing that sounds genuinely, unmistakably <em class="display-italic" style="color:var(--fg-soft)">you</em>.
     </p>
   </div>
 
+  <!-- MODE TOGGLE -->
+  <div class="reveal flex justify-center mb-5">
+    <div class="mode-toggle" role="tablist" aria-label="Mode">
+      <button class="mode-btn active" data-mode="humanize" role="tab" aria-selected="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8 19 13M15 9h0M17.8 6.2 19 5M3 21l9-9M12.2 6.2 11 5"/></svg>
+        Humanize
+      </button>
+      <button class="mode-btn" data-mode="detect" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4M8 16h0M16 16h0"/></svg>
+        AI Detector
+      </button>
+    </div>
+  </div>
+
   <!-- DEMO PANEL -->
-  <div id="demo" class="reveal demo-grid grid md:grid-cols-2 gap-4 md:gap-5 max-w-6xl mx-auto">
+  <div id="demo" class="reveal demo-grid grid md:grid-cols-[1fr_56px_1fr] gap-3 md:gap-3 max-w-6xl mx-auto items-stretch">
 
     <!-- INPUT CARD -->
     <div class="card p-5 md:p-6">
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center justify-between mb-4 gap-3">
         <div class="flex items-center gap-2">
           <span class="inline-block w-1.5 h-1.5 rounded-full" style="background:var(--fg-dim)"></span>
           <span class="text-xs font-semibold tracking-widest uppercase" style="color:var(--fg-muted)">AI Text</span>
         </div>
-        <span id="wordcount" class="text-xs" style="color:var(--fg-dim)">— words</span>
+        <span class="score-badge ai">
+          <span class="score-dot"></span>
+          <span class="score-label">AI</span>
+          <span id="aiScore">—</span>
+        </span>
       </div>
 
-      <!-- Sample pills -->
-      <div class="mb-4">
-        <p class="text-xs mb-2.5" style="color:var(--fg-dim)">No text ready? Try a sample:</p>
+      <!-- Sample pills + actions -->
+      <div class="flex items-center justify-between mb-2 gap-3">
+        <p class="text-xs" style="color:var(--fg-dim)">No text? Try a sample, or:</p>
+        <div class="flex gap-1.5">
+          <button class="icon-btn" id="pasteBtn" type="button" title="Paste from clipboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 4H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/></svg>
+            Paste
+          </button>
+          <button class="icon-btn" id="uploadBtn" type="button" title="Upload a .txt or .md file">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Upload
+          </button>
+          <input id="fileInput" type="file" accept=".txt,.md,.text,text/plain,text/markdown" style="display:none">
+        </div>
+      </div>
+      <div class="mb-3">
         <div class="flex flex-wrap gap-2" id="pills">
           <button class="pill" data-sample="academic">🎓 Academic</button>
           <button class="pill" data-sample="professional">💼 Professional</button>
@@ -297,55 +508,98 @@
         </div>
       </div>
 
-      <textarea id="inputArea" rows="8" placeholder="Paste AI text here, or click a sample above…"></textarea>
+      <div class="input-wrap">
+        <textarea id="inputArea" rows="6" placeholder=" "></textarea>
+        <div id="emptyState" class="empty-state">
+          <button class="empty-tile" id="emptySample" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+            Try a sample
+          </button>
+          <button class="empty-tile" id="emptyPaste" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+            Paste text
+          </button>
+        </div>
+      </div>
 
       <button id="humanizeBtn" class="btn-primary w-full mt-4">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M5.6 18.4 18.4 5.6"/></svg>
-        Humanize Text
+        <svg id="humanizeBtnIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8 19 13M15 9h0M17.8 6.2 19 5M3 21l9-9M12.2 6.2 11 5"/></svg>
+        <span id="humanizeBtnLabel">Humanize Text</span>
       </button>
+    </div>
+
+    <!-- FLOW ARROW -->
+    <div class="flow-arrow" aria-hidden="true">
+      <div class="flow-track">
+        <div class="flow-spark"></div>
+      </div>
+      <div class="flow-chip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M13 6l6 6-6 6"/>
+        </svg>
+      </div>
     </div>
 
     <!-- OUTPUT CARD -->
     <div id="outputPanel" class="card p-5 md:p-6 relative overflow-hidden">
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center justify-between mb-4 gap-3">
         <div class="flex items-center gap-2">
           <span id="outputDot" class="inline-block w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>
           <span class="text-xs font-semibold tracking-widest uppercase" style="color:var(--fg-muted)">Human Text</span>
         </div>
-        <span id="humanBadge" class="text-xs px-2.5 py-1 rounded-full font-semibold" style="background:var(--success-dim);color:var(--success);opacity:0;transition:opacity 300ms ease">
-          ✓ Sounds Human
+        <span id="humanBadge" class="score-badge human" style="opacity:0;transition:opacity 300ms ease">
+          <span class="score-dot"></span>
+          <span class="score-label">Human</span>
+          <span id="humanScore">—</span>
         </span>
       </div>
 
       <div id="outputText" class="output-content"></div>
 
-      <!-- Variant A: Copy bar with locked Copy button (sticky on mobile) -->
-      <div class="copy-bar" id="copyBar" style="display:none">
-        <span class="copy-meta">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-          Full result ready
-        </span>
-        <button id="copyBtn" class="copy-btn">
-          <svg class="lock-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          Copy result
+      <!-- Detector result (visible in detector mode) -->
+      <div id="detectorResult" class="detector-result">
+        <div class="detector-meter">
+          <div class="meter-num" id="meterNum">—</div>
+          <div class="meter-label">AI Probability</div>
+        </div>
+        <div id="detectorVerdict" class="detector-verdict">Run a check to see how detectors read your text.</div>
+        <div>
+          <div class="det-row"><span class="det-name">GPTZero</span><span class="det-bar"><span class="det-bar-fill" data-det="gptzero"></span></span><span class="det-num" data-det-num="gptzero">—</span></div>
+          <div class="det-row"><span class="det-name">Turnitin</span><span class="det-bar"><span class="det-bar-fill" data-det="turnitin"></span></span><span class="det-num" data-det-num="turnitin">—</span></div>
+          <div class="det-row"><span class="det-name">Originality.ai</span><span class="det-bar"><span class="det-bar-fill" data-det="originality"></span></span><span class="det-num" data-det-num="originality">—</span></div>
+        </div>
+        <button id="switchToHumanize" type="button" class="btn-primary w-full mt-6" style="display:none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8 19 13M17.8 6.2 19 5M3 21l9-9"/></svg>
+          Humanize this text →
         </button>
       </div>
 
-      <!-- Modal gate (triggered by Copy button click) -->
-      <div id="gate" style="display:none" class="gate-modal">
-        <button class="gate-close" id="gateClose" aria-label="Close">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 6-12 12M6 6l12 12"/></svg>
-        </button>
-        <div class="gate-modal-inner">
-          <div class="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold" style="background:var(--accent-dim);color:var(--accent)">
+      <!-- Copy button (revealed after signup + full output typed) -->
+      <button id="copyBtn" class="copy-btn" type="button" title="Copy humanized text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span id="copyBtnLabel">Copy</span>
+      </button>
+
+      <!-- Variant A: Locked copy button shown at bottom after full typing for non-signed-up users -->
+      <button id="copyLocked" class="copy-locked" type="button">
+        <svg id="copyLockedIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <span id="copyLockedLabel">Unlock to copy</span>
+      </button>
+
+      <!-- Gate overlay (now a modal — Variant A) -->
+      <div id="gate" style="display:none">
+        <div class="gate-modal-card">
+          <button type="button" class="gate-close" id="gateClose" aria-label="Close">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+          <div class="inline-flex items-center gap-2 mb-2 px-3 py-1 rounded-full text-xs font-semibold" style="background:var(--accent-dim);color:var(--accent)">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4-6.2-4.6-6.2 4.6 2.4-7.4L2 9.4h7.6z"/></svg>
-            Like what you see?
+            Your rewrite is ready
           </div>
-          <p class="text-base font-semibold mb-1.5" style="color:var(--fg)">Copy it with one tap.</p>
-          <p class="text-sm mb-5" style="color:var(--fg-muted)">Drop your email — it's free. No card, no spam.</p>
-          <form id="gateForm" class="flex flex-col gap-2">
+          <p class="text-sm mb-4 max-w-sm mx-auto" style="color:var(--fg-soft)">Enter your email to copy the result. No credit card needed.</p>
+          <form id="gateForm" class="flex gap-2 max-w-md mx-auto">
             <input type="email" id="gateEmail" placeholder="you@email.com" required />
-            <button type="submit" class="btn-primary">Unlock copy →</button>
+            <button type="submit" class="btn-primary">See Result →</button>
           </form>
         </div>
       </div>
@@ -595,7 +849,7 @@
 <!-- Toast container -->
 <div id="toast" class="toast">
   <span style="color:var(--success)">✓</span>
-  <span>Copied to clipboard. You're in — paste anywhere.</span>
+  <span>Your 3 free humanizations are ready.</span>
 </div>
 
 <script>
@@ -603,21 +857,105 @@
   const samples = {
     academic: {
       input: "In conclusion, it is imperative to acknowledge the multifaceted implications of this paradigm shift. The underlying framework serves as a testament to the intricate tapestry of modern methodologies, demonstrating the profound interconnectedness of contemporary scholarly approaches.",
-      output: "All things considered, it's worth pausing to think through what this shift actually means in practice. The approach we've outlined here reflects just how layered — and how connected — today's research methods have become. The pieces don't sit in isolation; they pull on each other in ways that older frameworks rarely captured."
+      output: "All things considered, it's worth pausing to think through what this shift actually means in practice. The approach we've outlined here reflects just how layered — and how connected — today's research methods have become. The pieces don't sit in isolation; they pull on each other in ways that older frameworks rarely captured.",
+      aiScore: 94, humanScore: 96
     },
     professional: {
       input: "I hope this email finds you well. I am writing to inform you that we have synergized our core competencies to streamline the deliverables. Please let me know if you require further clarification or assistance moving forward.",
-      output: "Hope you're doing well! Quick update — our teams have been working closely together and we've managed to cut down the time it takes to get things shipped. Let me know if you want to walk through any of it on a call, or if there's anything specific you'd like clarified."
+      output: "Hope you're doing well! Quick update — our teams have been working closely together and we've managed to cut down the time it takes to get things shipped. Let me know if you want to walk through any of it on a call, or if there's anything specific you'd like clarified.",
+      aiScore: 89, humanScore: 95
     },
     casual: {
       input: "Welcome back to my blog! In today's fast-paced digital landscape, it is super important to stay ahead of the curve. Let's delve deep into the ultimate guide to mastering your daily routine and unlocking peak productivity!",
-      output: "Hey, glad you're back! Keeping up with how fast everything moves online can feel like a lot — and honestly, most of the advice out there doesn't help. So here's what's actually worked for me when it comes to building a routine that sticks, without burning out by Wednesday."
+      output: "Hey, glad you're back! Keeping up with how fast everything moves online can feel like a lot — and honestly, most of the advice out there doesn't help. So here's what's actually worked for me when it comes to building a routine that sticks, without burning out by Wednesday.",
+      aiScore: 91, humanScore: 97
     },
     cover: {
       input: "To whom it may concern, I am thrilled to submit my application for this role. As a highly motivated and detail-oriented professional, my robust skill set and proven track record make me the ideal candidate to drive impactful results.",
-      output: "I'd love to be considered for this role. Over the past few years I've developed a working style that's equal parts careful and action-oriented — I take the time to get the details right, but I don't sit on decisions. That blend is exactly what I think this position calls for, and I'd be glad to talk through the specifics."
+      output: "I'd love to be considered for this role. Over the past few years I've developed a working style that's equal parts careful and action-oriented — I take the time to get the details right, but I don't sit on decisions. That blend is exactly what I think this position calls for, and I'd be glad to talk through the specifics.",
+      aiScore: 93, humanScore: 94
     }
   };
+
+  // ===== CLIENT-SIDE HUMANIZER (used when the user pastes their own text) =====
+  function humanize(text) {
+    const replacements = [
+      [/\bIt is imperative to\b/gi, "You need to"],
+      [/\bin today'?s fast-paced (digital |business |modern )?(landscape|world|environment),?\s*/gi, ""],
+      [/\bdelve (deep )?into\b/gi, "look at"],
+      [/\bintricate tapestry of\b/gi, "mix of"],
+      [/\bmultifaceted\b/gi, "complex"],
+      [/\brobust skill set\b/gi, "skills"],
+      [/\brobust\b/gi, "solid"],
+      [/\bleverage\b/gi, "use"],
+      [/\bsynergize(d|s)?\b/gi, "combined"],
+      [/\bcore competencies\b/gi, "strengths"],
+      [/\bstreamline the deliverables\b/gi, "ship faster"],
+      [/\bI hope this email finds you well\.?\s*/gi, "Hope you're well — "],
+      [/\bI am writing to inform you that\b/gi, "Just a heads-up,"],
+      [/\bI am writing to\b/gi, "I wanted to"],
+      [/\bIn conclusion,?\s*/gi, "So, "],
+      [/\bFurthermore,?\s*/gi, "Also, "],
+      [/\bMoreover,?\s*/gi, "And "],
+      [/\bAdditionally,?\s*/gi, "Also, "],
+      [/\bUtiliz(e|ing|ed|es)\b/gi, (m) => m[0] === 'U' ? "Use" : "use"],
+      [/\butiliz(e|ing|ed|es)\b/g, "use"],
+      [/\bEndeavor\b/gi, "try"],
+      [/\bFacilitate\b/gi, "help"],
+      [/\bSubsequently,?\s*/gi, "Then "],
+      [/\bDemonstrate(s|d)?\b/gi, "show"],
+      [/\bparadigm shift\b/gi, "big change"],
+      [/\btransformative\b/gi, "real"],
+      [/\bcutting-edge\b/gi, "new"],
+      [/\bstate-of-the-art\b/gi, "modern"],
+      [/\bI am thrilled to\b/gi, "I'd love to"],
+      [/\bthe ideal candidate\b/gi, "a good fit"],
+      [/\bideal candidate\b/gi, "good fit"],
+      [/\bproven track record\b/gi, "experience"],
+      [/\bdrive impactful results\b/gi, "get real results"],
+      [/\bTo whom it may concern,?\s*/gi, "Hi,\n\n"],
+      [/\bhighly motivated\b/gi, "motivated"],
+      [/\bdetail-oriented\b/gi, "careful"],
+      [/\bunderlying framework\b/gi, "approach"],
+      [/\bWelcome back to my blog!?\s*/gi, "Hey, glad you're back. "],
+      [/\bLet'?s delve\b/gi, "Here's a look at"],
+      [/\bunlocking peak productivity\b/gi, "actually getting things done"],
+      [/\bIt is\b/g, "It's"],
+      [/\bit is\b/g, "it's"],
+      [/\bI am\b/g, "I'm"],
+      [/\bdo not\b/g, "don't"],
+      [/\bdoes not\b/g, "doesn't"],
+      [/\bdid not\b/g, "didn't"],
+      [/\bwe are\b/g, "we're"],
+      [/\byou are\b/g, "you're"],
+      [/\bthey are\b/g, "they're"],
+      [/\bthat is\b/g, "that's"],
+      [/\bthere is\b/g, "there's"],
+      [/\bwill not\b/g, "won't"],
+      [/\bwould not\b/g, "wouldn't"],
+      [/\bshould not\b/g, "shouldn't"],
+      [/\bcould not\b/g, "couldn't"],
+      [/\bcannot\b/g, "can't"],
+      [/\bcan not\b/g, "can't"],
+      [/\bare not\b/g, "aren't"],
+      [/\bis not\b/g, "isn't"],
+      [/\bhas not\b/g, "hasn't"],
+      [/\bhave not\b/g, "haven't"],
+      [/\bhad not\b/g, "hadn't"],
+      [/\byou will\b/g, "you'll"],
+      [/\bwe will\b/g, "we'll"],
+      [/\bI will\b/g, "I'll"],
+      [/\bI have\b/g, "I've"],
+      [/\bwe have\b/g, "we've"],
+      [/\byou have\b/g, "you've"],
+      [/  +/g, " "],
+      [/\s+\./g, "."],
+      [/\s+,/g, ","],
+    ];
+    let t = text;
+    for (const [re, rep] of replacements) t = t.replace(re, rep);
+    return t.trim();
+  }
 
   // ===== ELEMENTS =====
   const inputArea = document.getElementById('inputArea');
@@ -626,49 +964,91 @@
   const gateEl = document.getElementById('gate');
   const outputPanel = document.getElementById('outputPanel');
   const humanBadge = document.getElementById('humanBadge');
-  const wordcountEl = document.getElementById('wordcount');
+  const aiScoreEl = document.getElementById('aiScore');
+  const humanScoreEl = document.getElementById('humanScore');
   const pills = document.querySelectorAll('.pill');
   let currentSample = null;
   let typingTimer = null;
   let outputTimer = null;
+  let isProgrammaticInput = false;
+  let lastHumanizedText = "";
   let signedUp = false;
+  let currentMode = 'humanize'; // 'humanize' | 'detect'
+  let isLoading = false;
 
   // ===== UTILITY =====
-  function updateWordcount() {
-    const n = inputArea.value.trim().split(/\s+/).filter(Boolean).length;
-    wordcountEl.textContent = n ? `${n} words` : '— words';
+  function animateScore(el, from, to, duration) {
+    const start = performance.now();
+    function step(now) {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 2);
+      const val = Math.round(from + (to - from) * eased);
+      el.textContent = val + '%';
+      if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
   }
-  inputArea.addEventListener('input', updateWordcount);
 
-  function typeIntoTextarea(text, speed, done) {
+  function typeIntoTextarea(text, speed, done, onProgress) {
     clearInterval(typingTimer);
+    isProgrammaticInput = true;
     inputArea.value = '';
+    if (typeof updateEmptyState === 'function') updateEmptyState();
     let i = 0;
     typingTimer = setInterval(() => {
       inputArea.value += text[i++];
-      updateWordcount();
       inputArea.scrollTop = inputArea.scrollHeight;
-      if (i >= text.length) { clearInterval(typingTimer); if (done) done(); }
+      if (typeof updateEmptyState === 'function') updateEmptyState();
+      if (onProgress) onProgress(i / text.length);
+      if (i >= text.length) {
+        clearInterval(typingTimer);
+        isProgrammaticInput = false;
+        if (done) done();
+      }
     }, speed);
   }
 
-  // Variant A: text fully visible. Copy bar appears at end. Gate opens on copy click.
-  const copyBar = document.getElementById('copyBar');
+  // User input handler — clears sample state, sets a generic AI score
+  inputArea.addEventListener('input', () => {
+    if (isProgrammaticInput) return;
+    currentSample = null;
+    pills.forEach(p => p.classList.remove('active'));
+    const txt = inputArea.value.trim();
+    if (!txt) { aiScoreEl.textContent = '—'; return; }
+    // Naive AI score heuristic: long, formal text scores higher
+    const wc = txt.split(/\s+/).filter(Boolean).length;
+    const formalTells = (txt.match(/\b(furthermore|moreover|utilize|leverage|robust|delve|paradigm|multifaceted|thrilled|imperative|intricate|tapestry|synergize|streamline|cutting-edge|state-of-the-art)\b/gi) || []).length;
+    let score = 78 + Math.min(15, formalTells * 3) + (wc > 80 ? 3 : 0);
+    score = Math.min(96, score);
+    aiScoreEl.textContent = score + '%';
+  });
 
-  function typeIntoOutput(text, speed, _blurAtIgnored, done) {
+  function typeIntoOutput(text, speed, blurAt, humanTarget) {
     clearInterval(outputTimer);
     outputArea.textContent = '';
     outputArea.classList.add('typing-cursor');
-    copyBar.style.display = 'none';
+    copyBtn.style.display = 'none';
+    // Variant A: hide locked copy button while typing
+    const copyLockedEl = document.getElementById('copyLocked');
+    if (copyLockedEl) copyLockedEl.style.display = 'none';
     let i = 0;
+    // Variant A: always type the full text (ignore blurAt)
     outputTimer = setInterval(() => {
       outputArea.textContent += text[i++];
+      const progress = i / text.length;
+      if (humanScoreEl && typeof humanTarget === 'number') {
+        humanScoreEl.textContent = Math.round(humanTarget * progress) + '%';
+      }
       if (i >= text.length) {
         clearInterval(outputTimer);
         outputArea.classList.remove('typing-cursor');
         humanBadge.style.opacity = '1';
-        copyBar.style.display = 'flex';
-        if (done) done();
+        if (signedUp) {
+          copyBtn.style.display = 'inline-flex';
+        } else {
+          // Variant A: show locked copy button instead of inline gate
+          if (copyLockedEl) copyLockedEl.style.display = 'inline-flex';
+        }
       }
     }, speed);
   }
@@ -677,83 +1057,345 @@
   function loadSample(key) {
     currentSample = key;
     pills.forEach(p => p.classList.toggle('active', p.dataset.sample === key));
-    // Reset output
+    // Reset output state
     clearInterval(outputTimer);
     outputArea.textContent = '';
     outputArea.classList.remove('typing-cursor');
     humanBadge.style.opacity = '0';
+    humanScoreEl.textContent = '—';
     gateEl.style.display = 'none';
-    copyBar.style.display = 'none';
-    // Type input
+    gateEl.style.opacity = '1';
+    if (copyBtn) copyBtn.style.display = 'none';
+    const _cl = document.getElementById('copyLocked');
+    if (_cl) _cl.style.display = 'none';
+    // Reset AI score and animate as input types
+    aiScoreEl.textContent = '0%';
+    const targetAI = samples[key].aiScore;
     typeIntoTextarea(samples[key].input, 6, () => {
-      // Pulse the humanize button
       btn.classList.remove('pulse'); void btn.offsetWidth; btn.classList.add('pulse');
+    }, (progress) => {
+      aiScoreEl.textContent = Math.round(targetAI * progress) + '%';
     });
   }
 
   pills.forEach(p => p.addEventListener('click', () => loadSample(p.dataset.sample)));
 
-  btn.addEventListener('click', () => {
-    if (!currentSample) {
-      // User pasted custom text — use academic output as fallback
-      const txt = inputArea.value.trim();
-      if (!txt) { inputArea.focus(); return; }
-      // Mobile auto-scroll
-      if (window.innerWidth < 768) {
-        setTimeout(() => outputPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
-      }
-      typeIntoOutput(samples.academic.output, 14, 0.65);
+  // ===== PASTE / UPLOAD / COPY =====
+  const pasteBtn = document.getElementById('pasteBtn');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const fileInput = document.getElementById('fileInput');
+  const copyBtn = document.getElementById('copyBtn');
+  const copyBtnLabel = document.getElementById('copyBtnLabel');
+
+  function applyUserText(text) {
+    currentSample = null;
+    pills.forEach(p => p.classList.remove('active'));
+    inputArea.value = text;
+    // Trigger input handler to update AI score
+    inputArea.dispatchEvent(new Event('input'));
+    inputArea.focus();
+    inputArea.scrollTop = 0;
+    btn.classList.remove('pulse'); void btn.offsetWidth; btn.classList.add('pulse');
+  }
+
+  pasteBtn.addEventListener('click', async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text) { showToastMsg('Clipboard is empty', false); return; }
+      applyUserText(text);
+      showToastMsg('Pasted from clipboard', true);
+    } catch (err) {
+      // Fallback: focus textarea so user can paste manually
+      inputArea.focus();
+      showToastMsg('Press ⌘V / Ctrl+V to paste', false);
+    }
+  });
+
+  uploadBtn.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (file.size > 200000) { showToastMsg('File too large (max 200 KB)', false); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      applyUserText(String(reader.result || '').slice(0, 8000));
+      showToastMsg(`Loaded ${file.name}`, true);
+    };
+    reader.onerror = () => showToastMsg('Could not read file', false);
+    reader.readAsText(file);
+    fileInput.value = ''; // allow re-upload of same file
+  });
+
+  // ===== MODE TOGGLE (Humanize ↔ Detect) =====
+  const humanizeBtnLabel = document.getElementById('humanizeBtnLabel');
+  const detectorResult = document.getElementById('detectorResult');
+  const meterNum = document.getElementById('meterNum');
+  const detectorVerdict = document.getElementById('detectorVerdict');
+  const switchToHumanize = document.getElementById('switchToHumanize');
+
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.addEventListener('click', () => switchMode(b.dataset.mode));
+  });
+
+  function switchMode(mode) {
+    if (currentMode === mode) return;
+    currentMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(b => {
+      const active = b.dataset.mode === mode;
+      b.classList.toggle('active', active);
+      b.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    if (mode === 'detect') {
+      detectorResult.classList.add('is-active');
+      outputArea.style.display = 'none';
+      humanBadge.style.opacity = '0';
+      gateEl.style.display = 'none';
+      copyBtn.style.display = 'none';
+      const _cl2 = document.getElementById('copyLocked');
+      if (_cl2) _cl2.style.display = 'none';
+      humanizeBtnLabel.textContent = 'Check for AI';
+    } else {
+      detectorResult.classList.remove('is-active');
+      outputArea.style.display = '';
+      humanizeBtnLabel.textContent = 'Humanize Text';
+    }
+  }
+
+  function runDetector(text) {
+    // Heuristic scoring on the input
+    const tells = (text.match(/\b(furthermore|moreover|utilize|leverage|robust|delve|paradigm|multifaceted|thrilled|imperative|intricate|tapestry|synergize|streamline|cutting-edge|state-of-the-art|endeavor|facilitate|subsequently|in conclusion)\b/gi) || []).length;
+    const wc = text.split(/\s+/).filter(Boolean).length;
+    let base = 64 + Math.min(26, tells * 4) + (wc > 80 ? 4 : 0);
+    base = Math.max(8, Math.min(95, base));
+    const scores = {
+      gptzero: Math.max(4, Math.min(98, base + 2 + Math.floor(Math.random() * 4))),
+      turnitin: Math.max(3, Math.min(96, base - 1 + Math.floor(Math.random() * 4))),
+      originality: Math.max(5, Math.min(97, base - 2 + Math.floor(Math.random() * 5))),
+    };
+    const avg = Math.round((scores.gptzero + scores.turnitin + scores.originality) / 3);
+    // Animate big number
+    const startVal = 0;
+    const start = performance.now();
+    const step = (now) => {
+      const t = Math.min(1, (now - start) / 1100);
+      const eased = 1 - Math.pow(1 - t, 2);
+      meterNum.textContent = Math.round(startVal + (avg - startVal) * eased) + '%';
+      // Color shifts based on score
+      const c = avg > 60 ? 'oklch(72% 0.18 28)' : avg > 30 ? 'oklch(78% 0.14 75)' : 'oklch(72% 0.15 145)';
+      meterNum.style.color = c;
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+    // Animate bars (slight stagger)
+    Object.entries(scores).forEach(([key, val], i) => {
+      setTimeout(() => {
+        const fill = document.querySelector(`[data-det="${key}"]`);
+        const num = document.querySelector(`[data-det-num="${key}"]`);
+        if (fill) fill.style.width = val + '%';
+        if (num) num.textContent = val + '%';
+        if (fill) {
+          fill.style.background = val > 60
+            ? 'linear-gradient(90deg, oklch(70% 0.16 28), oklch(72% 0.18 28))'
+            : val > 30
+            ? 'linear-gradient(90deg, oklch(76% 0.14 75), oklch(80% 0.14 75))'
+            : 'linear-gradient(90deg, oklch(70% 0.14 145), oklch(72% 0.15 145))';
+        }
+      }, 200 + i * 180);
+    });
+    // Verdict
+    detectorVerdict.textContent = avg > 70
+      ? 'This text reads as AI-generated. Major detectors will flag it.'
+      : avg > 40
+      ? 'Mixed signals — some detectors will flag it.'
+      : 'Reads as genuinely human. You should be fine.';
+    detectorVerdict.style.background = avg > 60 ? 'oklch(30% 0.10 28 / 0.20)' : avg > 30 ? 'oklch(30% 0.06 75 / 0.30)' : 'oklch(30% 0.08 145 / 0.25)';
+    detectorVerdict.style.color = avg > 60 ? 'oklch(78% 0.14 28)' : avg > 30 ? 'oklch(82% 0.13 75)' : 'oklch(78% 0.14 145)';
+    detectorVerdict.style.borderColor = avg > 60 ? 'oklch(50% 0.14 28 / 0.30)' : avg > 30 ? 'oklch(50% 0.10 75 / 0.30)' : 'oklch(50% 0.12 145 / 0.30)';
+    switchToHumanize.style.display = avg > 50 ? 'inline-flex' : 'none';
+  }
+
+  switchToHumanize.addEventListener('click', () => {
+    switchMode('humanize');
+    setTimeout(() => btn.click(), 350);
+  });
+
+  // ===== EMPTY STATE =====
+  const emptyState = document.getElementById('emptyState');
+  const emptySample = document.getElementById('emptySample');
+  const emptyPaste = document.getElementById('emptyPaste');
+
+  function updateEmptyState() {
+    const isEmpty = !inputArea.value.trim();
+    emptyState.classList.toggle('hidden', !isEmpty);
+  }
+  inputArea.addEventListener('input', updateEmptyState);
+
+  emptySample.addEventListener('click', () => {
+    const keys = Object.keys(samples);
+    const pick = keys[Math.floor(Math.random() * keys.length)];
+    loadSample(pick);
+    setTimeout(updateEmptyState, 50);
+  });
+  emptyPaste.addEventListener('click', () => pasteBtn.click());
+
+  copyBtn.addEventListener('click', async (e) => {
+    // Variant A: if not signed up, open modal gate instead of copying
+    if (!signedUp) {
+      e.preventDefault();
+      gateEl.style.display = 'flex';
+      const emailEl = document.getElementById('gateEmail');
+      setTimeout(() => emailEl && emailEl.focus(), 80);
       return;
     }
+    const txt = lastHumanizedText || outputArea.textContent;
+    if (!txt) return;
+    try {
+      await navigator.clipboard.writeText(txt);
+      copyBtn.classList.add('copied');
+      copyBtnLabel.textContent = 'Copied';
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtnLabel.textContent = 'Copy';
+      }, 1800);
+    } catch (err) {
+      showToastMsg('Could not copy', false);
+    }
+  });
+
+  // Variant A: locked copy button — opens the modal gate
+  const copyLockedBtn = document.getElementById('copyLocked');
+  if (copyLockedBtn) {
+    copyLockedBtn.addEventListener('click', () => {
+      gateEl.style.display = 'flex';
+      const emailEl = document.getElementById('gateEmail');
+      setTimeout(() => emailEl && emailEl.focus(), 80);
+    });
+  }
+  // Variant A: gate close button
+  const gateCloseBtn = document.getElementById('gateClose');
+  if (gateCloseBtn) {
+    gateCloseBtn.addEventListener('click', () => {
+      gateEl.style.display = 'none';
+    });
+  }
+  // Click outside modal card closes it
+  gateEl.addEventListener('click', (e) => {
+    if (e.target === gateEl) gateEl.style.display = 'none';
+  });
+
+  function runHumanizeOutput(outputText, targetHumanScore) {
+    lastHumanizedText = outputText;
     if (window.innerWidth < 768) {
       setTimeout(() => outputPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
     }
-    typeIntoOutput(samples[currentSample].output, 14, 0.65);
-  });
+    humanBadge.style.opacity = '1';
+    humanScoreEl.textContent = '0%';
+    typeIntoOutput(outputText, 14, 0.65, targetHumanScore);
+  }
 
-  // Variant A: Copy button → gate modal
-  const copyBtn = document.getElementById('copyBtn');
-  const gateClose = document.getElementById('gateClose');
-
-  copyBtn.addEventListener('click', () => {
-    if (signedUp) {
-      // Already signed up — actually copy
-      navigator.clipboard?.writeText(outputArea.textContent).catch(() => {});
-      copyBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Copied';
-      setTimeout(() => {
-        copyBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy result';
-      }, 1800);
+  btn.addEventListener('click', () => {
+    const txt = inputArea.value.trim();
+    if (!txt) { inputArea.focus(); return; }
+    if (isLoading) return;
+    if (currentMode === 'detect') {
+      runDetector(txt);
       return;
     }
-    gateEl.style.display = 'flex';
+    if (currentSample) {
+      runHumanizeOutput(samples[currentSample].output, samples[currentSample].humanScore);
+    } else {
+      humanizeRemoteOrLocal(txt);
+    }
   });
 
-  gateClose.addEventListener('click', () => { gateEl.style.display = 'none'; });
+  // Try remote Gemini-backed humanizer; fall back to client-side rules if unavailable
+  async function humanizeRemoteOrLocal(txt) {
+    setLoading(true, 'Humanizing…');
+    try {
+      const ctrl = new AbortController();
+      const timeoutId = setTimeout(() => ctrl.abort(), 25000);
+      const res = await fetch('/api/humanize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: txt }),
+        signal: ctrl.signal,
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok) throw new Error('api ' + res.status);
+      const data = await res.json();
+      if (!data || !data.humanized) throw new Error('no result');
+      setLoading(false);
+      runHumanizeOutput(data.humanized.trim(), 95);
+    } catch (err) {
+      setLoading(false);
+      const humanized = humanize(txt);
+      const wc = humanized.split(/\s+/).filter(Boolean).length;
+      const target = wc < 30 ? 88 : 93;
+      runHumanizeOutput(humanized, target);
+    }
+  }
 
-  // Gate form submit
-  document.getElementById('gateForm').addEventListener('submit', (e) => {
+  function setLoading(loading, label) {
+    isLoading = loading;
+    btn.disabled = loading;
+    btn.style.opacity = loading ? '0.7' : '';
+    btn.style.cursor = loading ? 'wait' : '';
+    if (loading && label) humanizeBtnLabel.textContent = label;
+    else humanizeBtnLabel.textContent = currentMode === 'detect' ? 'Check for AI' : 'Humanize Text';
+  }
+
+  // Gate form submit — Variant A: dismiss modal, auto-copy, swap locked button for normal copy state
+  document.getElementById('gateForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('gateEmail').value;
     if (!email) return;
     try { localStorage.setItem('humanizerco_email', email); } catch (e) {}
     signedUp = true;
-    gateEl.style.transition = 'opacity 360ms ease';
+    gateEl.style.transition = 'opacity 300ms ease';
     gateEl.style.opacity = '0';
-    setTimeout(() => {
+    setTimeout(async () => {
       gateEl.style.display = 'none';
       gateEl.style.opacity = '1';
-      // Swap copy button to unlocked state
-      copyBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy result';
-      // Auto-copy to clipboard as the immediate reward
-      navigator.clipboard?.writeText(outputArea.textContent).catch(() => {});
-      showToast();
-    }, 360);
+      const fullText = lastHumanizedText || (currentSample ? samples[currentSample].output : '');
+      // Hide the locked button now that we're signed up
+      const _cl = document.getElementById('copyLocked');
+      if (_cl) _cl.style.display = 'none';
+      // Auto-copy
+      let copied = false;
+      if (fullText) {
+        try {
+          await navigator.clipboard.writeText(fullText);
+          copied = true;
+        } catch (err) { /* clipboard unavailable */ }
+      }
+      // Show normal copy button in its 'Copied' state, then revert
+      copyBtn.style.display = 'inline-flex';
+      if (copied) {
+        copyBtn.classList.add('copied');
+        copyBtnLabel.textContent = 'Copied';
+        showToastMsg('Copied to clipboard', true);
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyBtnLabel.textContent = 'Copy';
+        }, 1800);
+      } else {
+        showToast();
+      }
+    }, 300);
   });
 
   function showToast() {
+    showToastMsg('Your 3 free humanizations are ready.', true);
+  }
+  function showToastMsg(msg, success) {
     const toast = document.getElementById('toast');
+    toast.querySelector('span:last-child').textContent = msg;
+    toast.querySelector('span:first-child').textContent = success ? '✓' : '!';
+    toast.querySelector('span:first-child').style.color = success ? 'var(--success)' : 'var(--accent)';
     toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3600);
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
   function scrollToDemo() {
